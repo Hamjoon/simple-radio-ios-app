@@ -35,7 +35,7 @@ struct ContentView: View {
                     }
                 }
             }
-            .navigationTitle("Simple Radio")
+            .navigationTitle("Garibong Radio")
             .navigationBarTitleDisplayMode(.inline)
         }
     }

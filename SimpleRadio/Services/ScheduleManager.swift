@@ -7,8 +7,8 @@ final class ScheduleManager {
 
     private(set) var schedule: HourlySchedule
     private(set) var isScheduleMode = false
+    private(set) var activeHour: Int = -1
     private var timer: Timer?
-    private var lastPlayedHour: Int = -1
 
     private init() {
         schedule = HourlySchedule.load()
@@ -40,7 +40,7 @@ final class ScheduleManager {
         guard schedule.hasAnySchedule else { return }
 
         isScheduleMode = true
-        lastPlayedHour = -1
+        activeHour = -1
         playStationForCurrentHour()
         startTimer()
     }
@@ -72,14 +72,14 @@ final class ScheduleManager {
 
     private func checkHourChange() {
         let hour = currentHour
-        if hour != lastPlayedHour {
+        if hour != activeHour {
             playStationForCurrentHour()
         }
     }
 
     private func playStationForCurrentHour() {
         let hour = currentHour
-        lastPlayedHour = hour
+        activeHour = hour
 
         let player = RadioPlayer.shared
         if let station = schedule.station(for: hour) {

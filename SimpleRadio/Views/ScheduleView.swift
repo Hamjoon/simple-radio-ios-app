@@ -15,20 +15,33 @@ struct ScheduleView: View {
                 scheduleActiveHeader
             }
 
-            List {
-                ForEach(0..<24, id: \.self) { hour in
-                    ScheduleRowView(
-                        hour: hour,
-                        station: scheduleManager.schedule.station(for: hour),
-                        isCurrentHour: hour == scheduleManager.currentHour && scheduleManager.isScheduleMode
-                    )
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        selectedHour = SelectedHour(id: hour)
+            ScrollViewReader { proxy in
+                List {
+                    ForEach(0..<24, id: \.self) { hour in
+                        ScheduleRowView(
+                            hour: hour,
+                            station: scheduleManager.schedule.station(for: hour),
+                            isCurrentHour: hour == scheduleManager.activeHour && scheduleManager.isScheduleMode
+                        )
+                        .id(hour)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            selectedHour = SelectedHour(id: hour)
+                        }
+                    }
+                }
+                .listStyle(.insetGrouped)
+                .onAppear {
+                    scrollToCurrentHour(proxy: proxy)
+                }
+                .onChange(of: scheduleManager.activeHour) { _, newHour in
+                    if scheduleManager.isScheduleMode && newHour >= 0 {
+                        withAnimation {
+                            proxy.scrollTo(newHour, anchor: .center)
+                        }
                     }
                 }
             }
-            .listStyle(.insetGrouped)
         }
         .sheet(item: $selectedHour) { selected in
             StationPickerView(
@@ -45,8 +58,16 @@ struct ScheduleView: View {
         }
     }
 
+    private func scrollToCurrentHour(proxy: ScrollViewProxy) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            withAnimation {
+                proxy.scrollTo(scheduleManager.currentHour, anchor: .center)
+            }
+        }
+    }
+
     private var currentStation: RadioStation? {
-        scheduleManager.schedule.station(for: scheduleManager.currentHour)
+        scheduleManager.schedule.station(for: scheduleManager.activeHour)
     }
 
     private var scheduleActiveHeader: some View {
@@ -66,7 +87,7 @@ struct ScheduleView: View {
                     Text("선택된 채널 없음")
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                    Text("\(String(format: "%02d", scheduleManager.currentHour)):00 시간대에 채널을 선택하세요")
+                    Text("\(String(format: "%02d", scheduleManager.activeHour)):00 시간대에 채널을 선택하세요")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
