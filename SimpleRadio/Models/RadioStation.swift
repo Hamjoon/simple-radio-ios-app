@@ -30,9 +30,9 @@ struct RadioStation: Identifiable, Hashable {
         var color: String {
             switch self {
             case .kbs: return "blue"
-            case .mbc: return "green"
+            case .mbc: return "purple"
             case .sbs: return "orange"
-            case .ebs: return "purple"
+            case .ebs: return "green"
             case .cbs: return "red"
             case .tbs: return "teal"
             case .other: return "gray"
