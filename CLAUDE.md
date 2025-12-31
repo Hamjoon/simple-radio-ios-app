@@ -38,8 +38,20 @@ The app uses AVFoundation's `AVPlayer` for streaming radio content. Key consider
 
 ```
 SimpleRadio/
-├── SimpleRadioApp.swift    # App entry point
-├── ContentView.swift       # Main view
-├── Assets.xcassets/        # App icons and colors
-└── Preview Content/        # SwiftUI preview assets
+├── SimpleRadioApp.swift        # App entry point
+├── ContentView.swift           # Main container view
+├── Models/
+│   └── RadioStation.swift      # Station data model with Korean radio stations
+├── Views/
+│   ├── RadioStationListView.swift  # Station list grouped by category
+│   ├── RadioStationRow.swift       # Individual station row
+│   └── NowPlayingView.swift        # Mini player bar
+├── Services/
+│   └── RadioPlayer.swift       # AVPlayer-based audio streaming service
+├── Assets.xcassets/
+└── Preview Content/
 ```
+
+## Radio Stations
+
+Stations are sourced from Korean broadcasters (KBS, MBC, SBS, EBS, CBS, TBS) using streaming URLs from radio.bsod.kr.

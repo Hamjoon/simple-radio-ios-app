@@ -2,13 +2,14 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "radio")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Simple Radio")
+        NavigationStack {
+            ZStack(alignment: .bottom) {
+                RadioStationListView()
+
+                NowPlayingView()
+            }
+            .navigationTitle("Simple Radio")
         }
-        .padding()
     }
 }
 

@@ -11,14 +11,24 @@
 		A1000003229E0003AAAAAAAA /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000004229E0004AAAAAAAA /* ContentView.swift */; };
 		A1000005229E0005AAAAAAAA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1000006229E0006AAAAAAAA /* Assets.xcassets */; };
 		A1000007229E0007AAAAAAAA /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1000008229E0008AAAAAAAA /* Preview Assets.xcassets */; };
+		A1000019229E0019AAAAAAAA /* RadioStation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001A229E001AAAAAAAAA /* RadioStation.swift */; };
+		A100001B229E001BAAAAAAAA /* RadioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001C229E001CAAAAAAAA /* RadioPlayer.swift */; };
+		A100001D229E001DAAAAAAAA /* RadioStationRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001E229E001EAAAAAAAA /* RadioStationRow.swift */; };
+		A100001F229E001FAAAAAAAA /* RadioStationListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000020229E0020AAAAAAAA /* RadioStationListView.swift */; };
+		A1000021229E0021AAAAAAAA /* NowPlayingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000022229E0022AAAAAAAA /* NowPlayingView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		A1000009229E0009AAAAAAAA /* SimpleRadio.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimpleRadio.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1000002229E0002AAAAAAAA /* SimpleRadioApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleRadioApp.swift; sourceTree = "<group>"; };
 		A1000004229E0004AAAAAAAA /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		A1000006229E0006AAAAAAAA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A1000008229E0008AAAAAAAA /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		A1000009229E0009AAAAAAAA /* SimpleRadio.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimpleRadio.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A100001A229E001AAAAAAAAA /* RadioStation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioStation.swift; sourceTree = "<group>"; };
+		A100001C229E001CAAAAAAAA /* RadioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioPlayer.swift; sourceTree = "<group>"; };
+		A100001E229E001EAAAAAAAA /* RadioStationRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioStationRow.swift; sourceTree = "<group>"; };
+		A1000020229E0020AAAAAAAA /* RadioStationListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioStationListView.swift; sourceTree = "<group>"; };
+		A1000022229E0022AAAAAAAA /* NowPlayingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -40,6 +50,20 @@
 			);
 			sourceTree = "<group>";
 		};
+		A100000C229E000CAAAAAAAA /* SimpleRadio */ = {
+			isa = PBXGroup;
+			children = (
+				A1000002229E0002AAAAAAAA /* SimpleRadioApp.swift */,
+				A1000004229E0004AAAAAAAA /* ContentView.swift */,
+				A1000023229E0023AAAAAAAA /* Models */,
+				A1000024229E0024AAAAAAAA /* Views */,
+				A1000025229E0025AAAAAAAA /* Services */,
+				A1000006229E0006AAAAAAAA /* Assets.xcassets */,
+				A100000E229E000EAAAAAAAA /* Preview Content */,
+			);
+			path = SimpleRadio;
+			sourceTree = "<group>";
+		};
 		A100000D229E000DAAAAAAAA /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -48,23 +72,38 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		A100000C229E000CAAAAAAAA /* SimpleRadio */ = {
-			isa = PBXGroup;
-			children = (
-				A1000002229E0002AAAAAAAA /* SimpleRadioApp.swift */,
-				A1000004229E0004AAAAAAAA /* ContentView.swift */,
-				A1000006229E0006AAAAAAAA /* Assets.xcassets */,
-				A100000E229E000EAAAAAAAA /* Preview Content */,
-			);
-			path = SimpleRadio;
-			sourceTree = "<group>";
-		};
 		A100000E229E000EAAAAAAAA /* Preview Content */ = {
 			isa = PBXGroup;
 			children = (
 				A1000008229E0008AAAAAAAA /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		A1000023229E0023AAAAAAAA /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A100001A229E001AAAAAAAAA /* RadioStation.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A1000024229E0024AAAAAAAA /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A100001E229E001EAAAAAAAA /* RadioStationRow.swift */,
+				A1000020229E0020AAAAAAAA /* RadioStationListView.swift */,
+				A1000022229E0022AAAAAAAA /* NowPlayingView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		A1000025229E0025AAAAAAAA /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A100001C229E001CAAAAAAAA /* RadioPlayer.swift */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -139,6 +178,11 @@
 			files = (
 				A1000003229E0003AAAAAAAA /* ContentView.swift in Sources */,
 				A1000001229E0001AAAAAAAA /* SimpleRadioApp.swift in Sources */,
+				A1000019229E0019AAAAAAAA /* RadioStation.swift in Sources */,
+				A100001B229E001BAAAAAAAA /* RadioPlayer.swift in Sources */,
+				A100001D229E001DAAAAAAAA /* RadioStationRow.swift in Sources */,
+				A100001F229E001FAAAAAAAA /* RadioStationListView.swift in Sources */,
+				A1000021229E0021AAAAAAAA /* NowPlayingView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -272,8 +316,10 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SimpleRadio/Preview Content\"";
+				DEVELOPMENT_TEAM = R6DKRR4PG6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SimpleRadio/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -300,8 +346,10 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SimpleRadio/Preview Content\"";
+				DEVELOPMENT_TEAM = R6DKRR4PG6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SimpleRadio/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -323,20 +371,20 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A1000014229E0014AAAAAAAA /* Build configuration list for PBXProject "SimpleRadio" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				A1000015229E0015AAAAAAAA /* Debug */,
-				A1000016229E0016AAAAAAAA /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		A1000010229E0010AAAAAAAA /* Build configuration list for PBXNativeTarget "SimpleRadio" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A1000017229E0017AAAAAAAA /* Debug */,
 				A1000018229E0018AAAAAAAA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A1000014229E0014AAAAAAAA /* Build configuration list for PBXProject "SimpleRadio" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1000015229E0015AAAAAAAA /* Debug */,
+				A1000016229E0016AAAAAAAA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
