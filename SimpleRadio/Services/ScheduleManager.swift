@@ -76,11 +76,13 @@ final class ScheduleManager {
         let hour = currentHour
         lastPlayedHour = hour
 
-        if let station = schedule.stationWithFallback(for: hour) {
-            let player = RadioPlayer.shared
+        let player = RadioPlayer.shared
+        if let station = schedule.station(for: hour) {
             if player.currentStation?.name != station.name || !player.isPlaying {
                 player.play(station: station)
             }
+        } else {
+            player.stop()
         }
     }
 }

@@ -1,8 +1,8 @@
 import SwiftUI
 
 enum AppMode: String, CaseIterable {
-    case stations = "방송국 선택"
-    case schedule = "24시간 모드"
+    case stations = "채널 선택 모드"
+    case schedule = "자동 재생 모드"
 }
 
 struct ContentView: View {

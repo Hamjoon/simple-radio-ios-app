@@ -45,18 +45,28 @@ struct ScheduleView: View {
         }
     }
 
+    private var currentStation: RadioStation? {
+        scheduleManager.schedule.station(for: scheduleManager.currentHour)
+    }
+
     private var scheduleActiveHeader: some View {
         HStack {
-            Image(systemName: "clock.fill")
-                .foregroundStyle(.green)
+            Image(systemName: currentStation != nil ? "clock.fill" : "speaker.slash.fill")
+                .foregroundStyle(currentStation != nil ? .green : .orange)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text("24시간 모드 실행 중")
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-
-                if let station = scheduleManager.schedule.stationWithFallback(for: scheduleManager.currentHour) {
+                if let station = currentStation {
+                    Text("자동 재생 모드 실행 중")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
                     Text("현재: \(station.name)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } else {
+                    Text("선택된 채널 없음")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                    Text("\(String(format: "%02d", scheduleManager.currentHour)):00 시간대에 채널을 선택하세요")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -65,7 +75,7 @@ struct ScheduleView: View {
             Spacer()
         }
         .padding()
-        .background(.green.opacity(0.1))
+        .background((currentStation != nil ? Color.green : Color.orange).opacity(0.1))
     }
 
     private var scheduleControlButton: some View {
@@ -78,7 +88,7 @@ struct ScheduleView: View {
         } label: {
             HStack {
                 Image(systemName: scheduleManager.isScheduleMode ? "stop.fill" : "play.fill")
-                Text(scheduleManager.isScheduleMode ? "24시간 모드 중지" : "24시간 모드 시작")
+                Text(scheduleManager.isScheduleMode ? "자동 재생 중지" : "자동 재생 시작")
             }
             .font(.headline)
             .foregroundStyle(.white)
@@ -104,7 +114,7 @@ struct ScheduleRowView: View {
             Text(String(format: "%02d:00", hour))
                 .font(.system(.body, design: .monospaced))
                 .fontWeight(isCurrentHour ? .bold : .regular)
-                .foregroundStyle(isCurrentHour ? .blue : .primary)
+                .foregroundStyle(isCurrentHour ? (station != nil ? .blue : .orange) : .primary)
                 .frame(width: 60, alignment: .leading)
 
             if let station = station {
@@ -118,17 +128,22 @@ struct ScheduleRowView: View {
                         .foregroundStyle(.secondary)
                 }
             } else {
-                Text("방송국을 선택하세요")
+                Text("방송국 및 채널을 선택하세요")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(isCurrentHour ? .orange : .secondary)
             }
 
             Spacer()
 
             if isCurrentHour {
-                Image(systemName: "speaker.wave.2.fill")
-                    .foregroundStyle(.blue)
-                    .symbolEffect(.variableColor.iterative, isActive: true)
+                if station != nil {
+                    Image(systemName: "speaker.wave.2.fill")
+                        .foregroundStyle(.blue)
+                        .symbolEffect(.variableColor.iterative, isActive: true)
+                } else {
+                    Image(systemName: "speaker.slash.fill")
+                        .foregroundStyle(.orange)
+                }
             } else {
                 Image(systemName: "chevron.right")
                     .font(.caption)
@@ -190,7 +205,7 @@ struct StationPickerView: View {
                     }
                 }
             }
-            .navigationTitle(String(format: "%02d:00 방송국", hour))
+            .navigationTitle(String(format: "%02d:00 채널 선택", hour))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
