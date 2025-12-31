@@ -20,14 +20,14 @@ struct RadioStation: Identifiable, Hashable {
 extension RadioStation {
     static let allStations: [RadioStation] = [
         // KBS
-        RadioStation(name: "KBS 1라디오", streamURL: "http://serpent0.duckdns.org:8088/kbs1radio.pls", category: .kbs),
-        RadioStation(name: "KBS 해피FM", streamURL: "http://serpent0.duckdns.org:8088/kbs2radio.pls", category: .kbs),
-        RadioStation(name: "KBS 클래식FM", streamURL: "http://serpent0.duckdns.org:8088/kbsfm.pls", category: .kbs),
-        RadioStation(name: "KBS 쿨FM", streamURL: "http://serpent0.duckdns.org:8088/kbs2fm.pls", category: .kbs),
+        RadioStation(name: "KBS 1Radio", streamURL: "http://serpent0.duckdns.org:8088/kbs1radio.pls", category: .kbs),
+        RadioStation(name: "KBS HappyFM", streamURL: "http://serpent0.duckdns.org:8088/kbs2radio.pls", category: .kbs),
+        RadioStation(name: "KBS ClassicFM", streamURL: "http://serpent0.duckdns.org:8088/kbsfm.pls", category: .kbs),
+        RadioStation(name: "KBS CoolFM", streamURL: "http://serpent0.duckdns.org:8088/kbs2fm.pls", category: .kbs),
 
         // MBC
-        RadioStation(name: "MBC 표준FM", streamURL: "http://serpent0.duckdns.org:8088/mbcsfm.pls", category: .mbc),
-        RadioStation(name: "MBC FM4U", streamURL: "http://serpent0.duckdns.org:8088/mbcfm.pls", category: .mbc),
+        RadioStation(name: "MBC 표준FM 95.9", streamURL: "http://serpent0.duckdns.org:8088/mbcsfm.pls", category: .mbc),
+        RadioStation(name: "MBC FM4U 91.9", streamURL: "http://serpent0.duckdns.org:8088/mbcfm.pls", category: .mbc),
 
         // SBS
         RadioStation(name: "SBS 파워FM", streamURL: "http://serpent0.duckdns.org:8088/sbsfm.pls", category: .sbs),

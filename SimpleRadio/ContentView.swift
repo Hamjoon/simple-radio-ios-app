@@ -1,14 +1,42 @@
 import SwiftUI
 
+enum AppMode: String, CaseIterable {
+    case stations = "방송국 선택"
+    case schedule = "24시간 모드"
+}
+
 struct ContentView: View {
+    @State private var selectedMode: AppMode = .stations
+    @Bindable var player = RadioPlayer.shared
+
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .bottom) {
-                RadioStationListView()
+            VStack(spacing: 0) {
+                Picker("모드", selection: $selectedMode) {
+                    ForEach(AppMode.allCases, id: \.self) { mode in
+                        Text(mode.rawValue).tag(mode)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .padding()
 
-                NowPlayingView()
+                ZStack(alignment: .bottom) {
+                    Group {
+                        switch selectedMode {
+                        case .stations:
+                            RadioStationListView()
+                        case .schedule:
+                            ScheduleView()
+                        }
+                    }
+
+                    if selectedMode == .stations {
+                        NowPlayingView()
+                    }
+                }
             }
             .navigationTitle("Simple Radio")
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
 }

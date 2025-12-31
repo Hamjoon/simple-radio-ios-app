@@ -145,6 +145,7 @@ final class RadioPlayer {
         player?.pause()
         player = nil
         playerItem = nil
+        currentStation = nil
         isPlaying = false
         isLoading = false
     }

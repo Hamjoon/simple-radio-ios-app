@@ -16,6 +16,9 @@
 		A100001D229E001DAAAAAAAA /* RadioStationRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001E229E001EAAAAAAAA /* RadioStationRow.swift */; };
 		A100001F229E001FAAAAAAAA /* RadioStationListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000020229E0020AAAAAAAA /* RadioStationListView.swift */; };
 		A1000021229E0021AAAAAAAA /* NowPlayingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000022229E0022AAAAAAAA /* NowPlayingView.swift */; };
+		A1000026229E0026AAAAAAAA /* HourlySchedule.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000027229E0027AAAAAAAA /* HourlySchedule.swift */; };
+		A1000028229E0028AAAAAAAA /* ScheduleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000029229E0029AAAAAAAA /* ScheduleManager.swift */; };
+		A100002A229E002AAAAAAAAA /* ScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100002B229E002BAAAAAAAA /* ScheduleView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +32,9 @@
 		A100001E229E001EAAAAAAAA /* RadioStationRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioStationRow.swift; sourceTree = "<group>"; };
 		A1000020229E0020AAAAAAAA /* RadioStationListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioStationListView.swift; sourceTree = "<group>"; };
 		A1000022229E0022AAAAAAAA /* NowPlayingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingView.swift; sourceTree = "<group>"; };
+		A1000027229E0027AAAAAAAA /* HourlySchedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HourlySchedule.swift; sourceTree = "<group>"; };
+		A1000029229E0029AAAAAAAA /* ScheduleManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleManager.swift; sourceTree = "<group>"; };
+		A100002B229E002BAAAAAAAA /* ScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,6 +90,7 @@
 			isa = PBXGroup;
 			children = (
 				A100001A229E001AAAAAAAAA /* RadioStation.swift */,
+				A1000027229E0027AAAAAAAA /* HourlySchedule.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -94,6 +101,7 @@
 				A100001E229E001EAAAAAAAA /* RadioStationRow.swift */,
 				A1000020229E0020AAAAAAAA /* RadioStationListView.swift */,
 				A1000022229E0022AAAAAAAA /* NowPlayingView.swift */,
+				A100002B229E002BAAAAAAAA /* ScheduleView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -102,6 +110,7 @@
 			isa = PBXGroup;
 			children = (
 				A100001C229E001CAAAAAAAA /* RadioPlayer.swift */,
+				A1000029229E0029AAAAAAAA /* ScheduleManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -134,7 +143,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1500;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 2610;
 				TargetAttributes = {
 					A100000F229E000FAAAAAAAA = {
 						CreatedOnToolsVersion = 15.0;
@@ -183,6 +192,9 @@
 				A100001D229E001DAAAAAAAA /* RadioStationRow.swift in Sources */,
 				A100001F229E001FAAAAAAAA /* RadioStationListView.swift in Sources */,
 				A1000021229E0021AAAAAAAA /* NowPlayingView.swift in Sources */,
+				A1000026229E0026AAAAAAAA /* HourlySchedule.swift in Sources */,
+				A1000028229E0028AAAAAAAA /* ScheduleManager.swift in Sources */,
+				A100002A229E002AAAAAAAAA /* ScheduleView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -224,6 +236,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = R6DKRR4PG6;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -247,6 +260,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -287,6 +301,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = R6DKRR4PG6;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -303,6 +318,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -316,7 +332,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SimpleRadio/Preview Content\"";
-				DEVELOPMENT_TEAM = R6DKRR4PG6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SimpleRadio/Info.plist;
@@ -346,7 +361,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SimpleRadio/Preview Content\"";
-				DEVELOPMENT_TEAM = R6DKRR4PG6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SimpleRadio/Info.plist;

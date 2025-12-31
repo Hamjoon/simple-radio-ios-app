@@ -27,15 +27,6 @@ struct NowPlayingView: View {
                         .foregroundStyle(.blue)
                 }
                 .buttonStyle(.plain)
-
-                Button {
-                    player.stop()
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 28))
-                        .foregroundStyle(.secondary)
-                }
-                .buttonStyle(.plain)
             }
             .padding()
             .background(.ultraThinMaterial)
