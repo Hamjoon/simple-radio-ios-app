@@ -13,9 +13,12 @@ final class RadioPlayer {
     private(set) var isPlaying = false
     private(set) var isLoading = false
 
+    private var wasPlayingBeforeInterruption = false
+
     private init() {
         setupAudioSession()
         setupRemoteCommands()
+        setupInterruptionHandling()
     }
 
     private func setupAudioSession() {
@@ -25,6 +28,39 @@ final class RadioPlayer {
             try session.setActive(true)
         } catch {
             print("Failed to setup audio session: \(error)")
+        }
+    }
+
+    private func setupInterruptionHandling() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleInterruption),
+            name: AVAudioSession.interruptionNotification,
+            object: AVAudioSession.sharedInstance()
+        )
+    }
+
+    @objc private func handleInterruption(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
+              let type = AVAudioSession.InterruptionType(rawValue: typeValue) else {
+            return
+        }
+
+        switch type {
+        case .began:
+            wasPlayingBeforeInterruption = isPlaying
+            pause()
+        case .ended:
+            guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else {
+                return
+            }
+            let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
+            if options.contains(.shouldResume) && wasPlayingBeforeInterruption {
+                play()
+            }
+        @unknown default:
+            break
         }
     }
 
