@@ -17,17 +17,35 @@ struct ScheduleView: View {
 
             ScrollViewReader { proxy in
                 List {
-                    ForEach(0..<24, id: \.self) { hour in
-                        ScheduleRowView(
-                            hour: hour,
-                            station: scheduleManager.schedule.station(for: hour),
-                            isCurrentHour: hour == scheduleManager.activeHour && scheduleManager.isScheduleMode
-                        )
-                        .id(hour)
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            selectedHour = SelectedHour(id: hour)
+                    Section {
+                        ForEach(0..<24, id: \.self) { hour in
+                            ScheduleRowView(
+                                hour: hour,
+                                station: scheduleManager.schedule.station(for: hour),
+                                isCurrentHour: hour == scheduleManager.activeHour && scheduleManager.isScheduleMode
+                            )
+                            .id(hour)
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                selectedHour = SelectedHour(id: hour)
+                            }
                         }
+                    } header: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "calendar.badge.clock")
+                                .foregroundStyle(.blue)
+                            Text("24시간 스케줄")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+
+                            Spacer()
+
+                            let scheduledCount = (0..<24).filter { scheduleManager.schedule.station(for: $0) != nil }.count
+                            Text("\(scheduledCount)/24 설정됨")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        .textCase(nil)
                     }
                 }
                 .listStyle(.insetGrouped)
@@ -70,57 +88,129 @@ struct ScheduleView: View {
         scheduleManager.schedule.station(for: scheduleManager.activeHour)
     }
 
-    private var scheduleActiveHeader: some View {
-        HStack {
-            Image(systemName: currentStation != nil ? "clock.fill" : "speaker.slash.fill")
-                .foregroundStyle(currentStation != nil ? .green : .orange)
+    private var categoryColor: Color {
+        guard let category = currentStation?.category else { return .blue }
+        switch category.color {
+        case "blue": return .blue
+        case "green": return .green
+        case "orange": return .orange
+        case "purple": return .purple
+        case "red": return .red
+        case "teal": return .teal
+        default: return .gray
+        }
+    }
 
-            VStack(alignment: .leading, spacing: 2) {
+    private var scheduleActiveHeader: some View {
+        HStack(spacing: 14) {
+            // Icon
+            ZStack {
+                Circle()
+                    .fill((currentStation != nil ? categoryColor : Color.orange).opacity(0.15))
+                    .frame(width: 50, height: 50)
+
                 if let station = currentStation {
-                    Text("자동 재생 모드 실행 중")
-                        .font(.subheadline)
+                    Image(systemName: station.category.icon)
+                        .font(.title2)
                         .fontWeight(.semibold)
-                    Text("현재: \(station.name)")
+                        .foregroundStyle(categoryColor)
+                } else {
+                    Image(systemName: "speaker.slash.fill")
+                        .font(.title2)
+                        .foregroundStyle(.orange)
+                }
+            }
+
+            VStack(alignment: .leading, spacing: 3) {
+                if let station = currentStation {
+                    HStack(spacing: 4) {
+                        Image(systemName: "clock.badge.checkmark.fill")
+                            .font(.caption)
+                        Text("자동 재생 중")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                    }
+                    .foregroundStyle(.green)
+
+                    Text(station.name)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 } else {
-                    Text("선택된 채널 없음")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                    Text("\(String(format: "%02d", scheduleManager.activeHour)):00 시간대에 채널을 선택하세요")
+                    HStack(spacing: 4) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.caption)
+                        Text("채널 없음")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                    }
+                    .foregroundStyle(.orange)
+
+                    Text("\(String(format: "%02d", scheduleManager.activeHour)):00 시간대 설정 필요")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
             }
 
             Spacer()
+
+            // Current time badge
+            VStack(spacing: 2) {
+                Text(String(format: "%02d", scheduleManager.activeHour))
+                    .font(.system(.title2, design: .rounded))
+                    .fontWeight(.bold)
+                Text("시")
+                    .font(.caption2)
+            }
+            .foregroundStyle(currentStation != nil ? categoryColor : .orange)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background((currentStation != nil ? categoryColor : Color.orange).opacity(0.1))
+            .clipShape(RoundedRectangle(cornerRadius: 10))
         }
         .padding()
-        .background((currentStation != nil ? Color.green : Color.orange).opacity(0.1))
+        .background(Color(.secondarySystemGroupedBackground))
     }
 
     private var scheduleControlButton: some View {
-        Button {
-            if scheduleManager.isScheduleMode {
-                scheduleManager.stopScheduleMode()
-            } else {
-                scheduleManager.startScheduleMode()
+        VStack(spacing: 12) {
+            if !scheduleManager.isScheduleMode && !scheduleManager.schedule.hasAnySchedule {
+                HStack(spacing: 6) {
+                    Image(systemName: "info.circle.fill")
+                        .foregroundStyle(.blue)
+                    Text("각 시간대를 탭하여 채널을 설정하세요")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
-        } label: {
-            HStack {
-                Image(systemName: scheduleManager.isScheduleMode ? "stop.fill" : "play.fill")
-                Text(scheduleManager.isScheduleMode ? "자동 재생 중지" : "자동 재생 시작")
+
+            Button {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    if scheduleManager.isScheduleMode {
+                        scheduleManager.stopScheduleMode()
+                    } else {
+                        scheduleManager.startScheduleMode()
+                    }
+                }
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: scheduleManager.isScheduleMode ? "stop.circle.fill" : "play.circle.fill")
+                        .font(.title3)
+                    Text(scheduleManager.isScheduleMode ? "자동 재생 중지" : "자동 재생 시작")
+                        .fontWeight(.semibold)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+                .background(
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(scheduleManager.isScheduleMode ? Color.red : Color.blue)
+                )
+                .foregroundStyle(.white)
             }
-            .font(.headline)
-            .foregroundStyle(.white)
-            .frame(maxWidth: .infinity)
-            .padding()
-            .background(scheduleManager.isScheduleMode ? Color.red : Color.blue)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .disabled(!scheduleManager.schedule.hasAnySchedule && !scheduleManager.isScheduleMode)
+            .opacity((!scheduleManager.schedule.hasAnySchedule && !scheduleManager.isScheduleMode) ? 0.5 : 1)
         }
-        .disabled(!scheduleManager.schedule.hasAnySchedule && !scheduleManager.isScheduleMode)
-        .opacity((!scheduleManager.schedule.hasAnySchedule && !scheduleManager.isScheduleMode) ? 0.5 : 1)
-        .padding()
+        .padding(.horizontal)
+        .padding(.vertical, 12)
         .background(.ultraThinMaterial)
     }
 }
@@ -130,48 +220,123 @@ struct ScheduleRowView: View {
     let station: RadioStation?
     let isCurrentHour: Bool
 
+    private var categoryColor: Color {
+        guard let category = station?.category else { return .gray }
+        switch category.color {
+        case "blue": return .blue
+        case "green": return .green
+        case "orange": return .orange
+        case "purple": return .purple
+        case "red": return .red
+        case "teal": return .teal
+        default: return .gray
+        }
+    }
+
+    private var timeOfDayIcon: String {
+        switch hour {
+        case 5..<12: return "sunrise.fill"
+        case 12..<17: return "sun.max.fill"
+        case 17..<21: return "sunset.fill"
+        default: return "moon.stars.fill"
+        }
+    }
+
+    private var timeOfDayColor: Color {
+        switch hour {
+        case 5..<12: return .orange
+        case 12..<17: return .yellow
+        case 17..<21: return .pink
+        default: return .indigo
+        }
+    }
+
     var body: some View {
-        HStack {
-            Text(String(format: "%02d:00", hour))
-                .font(.system(.body, design: .monospaced))
-                .fontWeight(isCurrentHour ? .bold : .regular)
-                .foregroundStyle(isCurrentHour ? (station != nil ? .blue : .orange) : .primary)
-                .frame(width: 60, alignment: .leading)
+        HStack(spacing: 12) {
+            // Time badge
+            VStack(spacing: 2) {
+                Image(systemName: timeOfDayIcon)
+                    .font(.caption2)
+                    .foregroundStyle(timeOfDayColor)
+                Text(String(format: "%02d", hour))
+                    .font(.system(.body, design: .rounded))
+                    .fontWeight(isCurrentHour ? .bold : .medium)
+                Text("시")
+                    .font(.caption2)
+            }
+            .frame(width: 44)
+            .foregroundStyle(isCurrentHour ? (station != nil ? categoryColor : .orange) : .primary)
 
+            // Divider
+            Rectangle()
+                .fill(isCurrentHour ? (station != nil ? categoryColor : Color.orange) : Color.secondary.opacity(0.3))
+                .frame(width: 2, height: 36)
+                .clipShape(Capsule())
+
+            // Station info
             if let station = station {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(station.name)
+                HStack(spacing: 10) {
+                    Image(systemName: station.category.icon)
                         .font(.subheadline)
-                        .fontWeight(isCurrentHour ? .semibold : .regular)
+                        .foregroundStyle(categoryColor)
+                        .frame(width: 24)
 
-                    Text(station.category.rawValue)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(station.name)
+                            .font(.subheadline)
+                            .fontWeight(isCurrentHour ? .semibold : .regular)
+                            .foregroundStyle(isCurrentHour ? categoryColor : .primary)
+
+                        Text(station.category.rawValue)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
                 }
             } else {
-                Text("방송국 및 채널을 선택하세요")
-                    .font(.subheadline)
-                    .foregroundStyle(isCurrentHour ? .orange : .secondary)
+                HStack(spacing: 8) {
+                    Image(systemName: "plus.circle.dashed")
+                        .font(.subheadline)
+                        .foregroundStyle(isCurrentHour ? .orange : .secondary)
+
+                    Text("탭하여 채널 선택")
+                        .font(.subheadline)
+                        .foregroundStyle(isCurrentHour ? .orange : .secondary)
+                }
             }
 
             Spacer()
 
+            // Status indicator
             if isCurrentHour {
                 if station != nil {
-                    Image(systemName: "speaker.wave.2.fill")
-                        .foregroundStyle(.blue)
-                        .symbolEffect(.variableColor.iterative, isActive: true)
+                    HStack(spacing: 4) {
+                        Image(systemName: "waveform")
+                            .symbolEffect(.variableColor.iterative, options: .repeating, isActive: true)
+                    }
+                    .font(.caption)
+                    .foregroundStyle(categoryColor)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(categoryColor.opacity(0.15))
+                    .clipShape(Capsule())
                 } else {
-                    Image(systemName: "speaker.slash.fill")
+                    Image(systemName: "exclamationmark.circle.fill")
                         .foregroundStyle(.orange)
                 }
             } else {
                 Image(systemName: "chevron.right")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.tertiary)
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 6)
+        .background(
+            isCurrentHour ?
+                RoundedRectangle(cornerRadius: 8)
+                    .fill((station != nil ? categoryColor : Color.orange).opacity(0.08))
+                    .padding(.horizontal, -12)
+                : nil
+        )
     }
 }
 
@@ -182,6 +347,18 @@ struct StationPickerView: View {
 
     @Environment(\.dismiss) private var dismiss
 
+    private func categoryColor(_ category: RadioStation.StationCategory) -> Color {
+        switch category.color {
+        case "blue": return .blue
+        case "green": return .green
+        case "orange": return .orange
+        case "purple": return .purple
+        case "red": return .red
+        case "teal": return .teal
+        default: return .gray
+        }
+    }
+
     var body: some View {
         NavigationStack {
             List {
@@ -190,12 +367,22 @@ struct StationPickerView: View {
                         onSelect(nil)
                         dismiss()
                     } label: {
-                        HStack {
+                        HStack(spacing: 12) {
+                            ZStack {
+                                Circle()
+                                    .fill(Color.secondary.opacity(0.15))
+                                    .frame(width: 36, height: 36)
+                                Image(systemName: "minus.circle")
+                                    .foregroundStyle(.secondary)
+                            }
+
                             Text("선택 안함")
                                 .foregroundStyle(.primary)
+
                             Spacer()
+
                             if currentStation == nil {
-                                Image(systemName: "checkmark")
+                                Image(systemName: "checkmark.circle.fill")
                                     .foregroundStyle(.blue)
                             }
                         }
@@ -205,23 +392,41 @@ struct StationPickerView: View {
                 ForEach(RadioStation.StationCategory.allCases, id: \.self) { category in
                     let stations = RadioStation.stations(for: category)
                     if !stations.isEmpty {
-                        Section(category.rawValue) {
+                        Section {
                             ForEach(stations) { station in
                                 Button {
                                     onSelect(station)
                                     dismiss()
                                 } label: {
-                                    HStack {
+                                    HStack(spacing: 12) {
+                                        ZStack {
+                                            Circle()
+                                                .fill(categoryColor(category).opacity(0.15))
+                                                .frame(width: 36, height: 36)
+                                            Image(systemName: category.icon)
+                                                .foregroundStyle(categoryColor(category))
+                                        }
+
                                         Text(station.name)
                                             .foregroundStyle(.primary)
+
                                         Spacer()
+
                                         if currentStation?.name == station.name {
-                                            Image(systemName: "checkmark")
+                                            Image(systemName: "checkmark.circle.fill")
                                                 .foregroundStyle(.blue)
                                         }
                                     }
                                 }
                             }
+                        } header: {
+                            HStack(spacing: 6) {
+                                Image(systemName: category.icon)
+                                    .font(.caption)
+                                    .foregroundStyle(categoryColor(category))
+                                Text(category.rawValue)
+                            }
+                            .textCase(nil)
                         }
                     }
                 }
@@ -230,13 +435,17 @@ struct StationPickerView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("취소") {
+                    Button {
                         dismiss()
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(.secondary)
                     }
                 }
             }
         }
         .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
     }
 }
 

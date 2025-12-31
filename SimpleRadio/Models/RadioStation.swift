@@ -14,6 +14,30 @@ struct RadioStation: Identifiable, Hashable {
         case cbs = "CBS"
         case tbs = "TBS"
         case other = "기타"
+
+        var icon: String {
+            switch self {
+            case .kbs: return "k.circle.fill"
+            case .mbc: return "m.circle.fill"
+            case .sbs: return "s.circle.fill"
+            case .ebs: return "e.circle.fill"
+            case .cbs: return "c.circle.fill"
+            case .tbs: return "t.circle.fill"
+            case .other: return "radio.fill"
+            }
+        }
+
+        var color: String {
+            switch self {
+            case .kbs: return "blue"
+            case .mbc: return "green"
+            case .sbs: return "orange"
+            case .ebs: return "purple"
+            case .cbs: return "red"
+            case .tbs: return "teal"
+            case .other: return "gray"
+            }
+        }
     }
 }
 
