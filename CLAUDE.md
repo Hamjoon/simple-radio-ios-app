@@ -23,19 +23,19 @@ xcodebuild -scheme SimpleRadio clean
 The project uses SwiftUI with the Observation framework (`@Observable`).
 
 ### Models
-- `RadioStation.swift` - Station data (name, streamURL, category) with static station list
+- `RadioStation.swift` - Station data (name, streamURL, category) with static station list; includes `icon` (SF Symbol) and `color` per category
 - `HourlySchedule.swift` - 24-hour schedule mapping hours to stations, persisted as JSON
 
 ### Views
-- `ContentView.swift` - Segmented control switching between modes
-- `RadioStationListView.swift` - Station list grouped by category (KBS, MBC, SBS, etc.)
-- `RadioStationRow.swift` - Individual station row with playing indicator
-- `NowPlayingView.swift` - Bottom mini player bar
-- `ScheduleView.swift` - 24-hour grid for schedule setup with station picker sheet
+- `ContentView.swift` - Custom tab-style mode picker with SF Symbols, animated toolbar icon
+- `RadioStationListView.swift` - Station list grouped by category with icons and channel counts
+- `RadioStationRow.swift` - Station row with category badge, waveform animation (`WaveformView`)
+- `NowPlayingView.swift` - Floating card mini player with gradient progress line, stop/play buttons
+- `ScheduleView.swift` - 24-hour grid with time-of-day icons, timeline dividers, station picker sheet
 
 ### Services
-- `RadioPlayer.swift` - Singleton AVPlayer wrapper with PLS parsing, background audio, Now Playing info
-- `ScheduleManager.swift` - Clock-based auto-switching with 60-second timer
+- `RadioPlayer.swift` - Singleton AVPlayer wrapper with PLS parsing, background audio, Now Playing info, interruption handling
+- `ScheduleManager.swift` - Clock-based auto-switching with 60-second timer, `activeHour` for real-time tracking
 
 ## Project Structure
 
@@ -65,9 +65,35 @@ Korean broadcasters: KBS, MBC, SBS, EBS, CBS, TBS. Stream sources:
 - PLS playlists (`.pls`): KBS, MBC, SBS via `serpent0.duckdns.org`
 - Proxy streams: `radio.bsod.kr/stream/`
 
+### Category Icons & Colors
+| Category | Icon | Color |
+|----------|------|-------|
+| KBS | `k.circle.fill` | blue |
+| MBC | `m.circle.fill` | purple |
+| SBS | `s.circle.fill` | orange |
+| EBS | `e.circle.fill` | green |
+| CBS | `c.circle.fill` | red |
+| TBS | `t.circle.fill` | teal |
+
 ## Key Implementation Details
 
 - **PLS Parsing**: `RadioPlayer` fetches and parses `.pls` files to extract `File1=` stream URL
 - **Schedule Persistence**: `HourlySchedule` saves to `Documents/hourly_schedule.json`
 - **Empty Hour Behavior**: Radio stops when no station is scheduled for current hour
+- **Auto-Scroll**: ScheduleView auto-scrolls to current hour on appear and when hour changes
 - **Background Audio**: Enabled via `UIBackgroundModes` in Info.plist
+- **Audio Interruption**: Resumes playback after interruptions (phone calls, alarms) when system allows
+- **UI State Sync**: Switching modes updates UI across both tabs; manual play disables schedule mode via `disableScheduleMode()`
+- **Real-time Hour Tracking**: `ScheduleManager.activeHour` triggers UI updates when hour changes during auto-play
+
+## SF Symbols Used
+
+- `antenna.radiowaves.left.and.right` - App branding, animated during playback
+- `radio.fill` / `clock.fill` - Mode picker tabs
+- `waveform` - Playing state indicator
+- `sunrise.fill` / `sun.max.fill` / `sunset.fill` / `moon.stars.fill` - Time-of-day in schedule
+- `calendar.badge.clock` - Schedule section header
+- `play.circle.fill` / `pause.fill` / `stop.circle.fill` - Playback controls
+- `xmark.circle.fill` - Close/stop buttons
+- `plus.circle.dashed` - Empty schedule slot
+- `checkmark.circle.fill` - Selected item in picker

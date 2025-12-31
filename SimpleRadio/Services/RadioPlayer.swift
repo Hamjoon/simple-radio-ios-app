@@ -85,7 +85,7 @@ final class RadioPlayer {
 
     private func updateNowPlayingInfo() {
         var info = [String: Any]()
-        info[MPMediaItemPropertyTitle] = currentStation?.name ?? "Simple Radio"
+        info[MPMediaItemPropertyTitle] = currentStation?.name ?? "가리봉 라디오"
         info[MPMediaItemPropertyArtist] = currentStation?.category.rawValue ?? ""
         info[MPNowPlayingInfoPropertyIsLiveStream] = true
         MPNowPlayingInfoCenter.default().nowPlayingInfo = info

@@ -37,7 +37,7 @@ struct ContentView: View {
                 }
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("Simple Radio")
+            .navigationTitle("가리봉 라디오")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
@@ -45,7 +45,7 @@ struct ContentView: View {
                         Image(systemName: "antenna.radiowaves.left.and.right")
                             .foregroundStyle(.blue)
                             .symbolEffect(.variableColor.iterative, options: .repeating, isActive: player.isPlaying)
-                        Text("Simple Radio")
+                        Text("가리봉 라디오")
                             .font(.headline)
                     }
                 }
