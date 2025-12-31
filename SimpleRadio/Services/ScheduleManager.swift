@@ -51,6 +51,11 @@ final class ScheduleManager {
         RadioPlayer.shared.stop()
     }
 
+    func disableScheduleMode() {
+        isScheduleMode = false
+        stopTimer()
+    }
+
     private func startTimer() {
         stopTimer()
 

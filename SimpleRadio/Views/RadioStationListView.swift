@@ -2,6 +2,7 @@ import SwiftUI
 
 struct RadioStationListView: View {
     @Bindable var player = RadioPlayer.shared
+    var scheduleManager = ScheduleManager.shared
 
     var body: some View {
         List {
@@ -12,11 +13,14 @@ struct RadioStationListView: View {
                         ForEach(stations) { station in
                             RadioStationRow(
                                 station: station,
-                                isPlaying: player.isPlaying,
-                                isCurrentStation: player.currentStation?.id == station.id
+                                isPlaying: player.isPlaying && !scheduleManager.isScheduleMode,
+                                isCurrentStation: player.currentStation?.id == station.id && !scheduleManager.isScheduleMode
                             )
                             .contentShape(Rectangle())
                             .onTapGesture {
+                                if scheduleManager.isScheduleMode {
+                                    scheduleManager.disableScheduleMode()
+                                }
                                 player.play(station: station)
                             }
                         }
