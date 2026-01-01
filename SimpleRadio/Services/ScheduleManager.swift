@@ -59,7 +59,19 @@ final class ScheduleManager {
     private func startTimer() {
         stopTimer()
 
-        // Check every minute for hour changes
+        // Calculate seconds until next minute boundary
+        let now = Date()
+        let seconds = Calendar.current.component(.second, from: now)
+        let delayToNextMinute = Double(60 - seconds)
+
+        // Fire at the start of next minute, then every 60 seconds
+        timer = Timer.scheduledTimer(withTimeInterval: delayToNextMinute, repeats: false) { [weak self] _ in
+            self?.checkHourChange()
+            self?.startRepeatingTimer()
+        }
+    }
+
+    private func startRepeatingTimer() {
         timer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
             self?.checkHourChange()
         }
