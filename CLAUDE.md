@@ -35,7 +35,7 @@ The project uses SwiftUI with the Observation framework (`@Observable`).
 
 ### Services
 - `RadioPlayer.swift` - Singleton AVPlayer wrapper with PLS parsing, background audio, Now Playing info, interruption handling
-- `ScheduleManager.swift` - Clock-based auto-switching with 60-second timer, `activeHour` for real-time tracking
+- `ScheduleManager.swift` - Clock-based auto-switching with minute-aligned timer, `activeHour` for real-time tracking
 
 ## Project Structure
 
@@ -85,6 +85,7 @@ Korean broadcasters: KBS, MBC, SBS, EBS, CBS, TBS. Stream sources:
 - **Audio Interruption**: Resumes playback after interruptions (phone calls, alarms) when system allows
 - **UI State Sync**: Switching modes updates UI across both tabs; manual play disables schedule mode via `disableScheduleMode()`
 - **Real-time Hour Tracking**: `ScheduleManager.activeHour` triggers UI updates when hour changes during auto-play
+- **Timer Sync**: Schedule timer aligns to minute boundaries (fires at :00 seconds) for precise hour-change detection
 
 ## SF Symbols Used
 
