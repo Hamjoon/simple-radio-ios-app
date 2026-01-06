@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-A Korean radio streaming iOS app with two modes:
+An internet radio streaming iOS app with two modes:
 - **채널 선택 모드**: Manual station selection
 - **자동 재생 모드**: Clock-based 24-hour scheduled playback
 
@@ -65,43 +65,27 @@ SimpleRadio/
 
 ## Radio Stations
 
-Korean broadcasters: KBS, MBC, SBS, EBS, CBS, TBS. 
+International radio stations organized by mood/purpose. Sources: RadioNOS (Brazil), YourClassical (USA), Public Domain Radio (Switzerland), and others.
 
-**Stream Source**: All stations use `radio.bsod.kr` proxy service (Cloudflare Workers) for reliable global access.
+### Categories & Stations
 
-URL format: `https://radio.bsod.kr/stream/?stn={station}&ch={channel}`
-
-| Station | stn | ch |
-|---------|-----|-----|
-| KBS 1Radio | kbs | 1radio |
-| KBS HappyFM | kbs | 2radio |
-| KBS ClassicFM | kbs | 1fm |
-| KBS CoolFM | kbs | 2fm |
-| MBC 표준FM | mbc | sfm |
-| MBC FM4U | mbc | fm4u |
-| SBS 파워FM | sbs | powerfm |
-| SBS 러브FM | sbs | lovefm |
-| SBS 고릴라디오M | sbs | dmb |
-| EBS FM | ebs | (none) |
-| CBS 표준FM | cbs | sfm |
-| CBS 음악FM | cbs | mfm |
-| CBS JOY4U | cbs | joy4u |
-| TBS FM | tbs | fm |
-| TBS eFM | tbs | efm |
+| Category | Stations |
+|----------|----------|
+| 집중/공부 (Focus) | RadioNOS Ambient, RadioNOS Electronica, RadioNOS Chiptune, FluxFM ChillHop |
+| 휴식/수면 (Relaxation) | RadioNOS Relaxing, RadioNOS New Age, Peaceful Piano, YourClassical Relax |
+| 클래식 (Classical) | Public Domain Classical, RadioNOS Modern Classical, YourClassical Essentials, Classic FM |
+| 카페/라운지 (Cafe) | Public Domain Jazz, RadioNOS Jazz, RadioNOS Lounge, Jazz Radio Lounge |
 
 ### Category Icons & Colors
 | Category | Icon | Color |
 |----------|------|-------|
-| KBS | `k.circle.fill` | blue |
-| MBC | `m.circle.fill` | purple |
-| SBS | `s.circle.fill` | orange |
-| EBS | `e.circle.fill` | green |
-| CBS | `c.circle.fill` | red |
-| TBS | `t.circle.fill` | teal |
+| 집중/공부 | `brain` | blue |
+| 휴식/수면 | `moon` | purple |
+| 클래식 | `music.note` | orange |
+| 카페/라운지 | `cup.and.saucer` | brown |
 
 ## Key Implementation Details
 
-- **Stream Proxy**: Uses `radio.bsod.kr` Cloudflare Workers proxy for reliable access from any location (including App Store reviewers in US)
 - **Error Handling**: RadioPlayer includes `error` state with AVPlayerItem status monitoring; UI displays error banner with retry button
 - **Schedule Persistence**: `HourlySchedule` saves to `Documents/hourly_schedule.json`
 - **Empty Hour Behavior**: Radio stops when no station is scheduled for current hour
@@ -118,6 +102,7 @@ URL format: `https://radio.bsod.kr/stream/?stn={station}&ch={channel}`
 
 - `antenna.radiowaves.left.and.right` - App branding, animated during playback
 - `radio.fill` / `clock.fill` - Mode picker tabs
+- `brain` / `moon` / `music.note` / `cup.and.saucer` - Category icons
 - `waveform` - Playing state indicator
 - `sunrise.fill` / `sun.max.fill` / `sunset.fill` / `moon.stars.fill` - Time-of-day in schedule
 - `calendar.badge.clock` - Schedule section header

@@ -7,35 +7,26 @@ struct RadioStation: Identifiable, Hashable {
     let category: StationCategory
 
     enum StationCategory: String, CaseIterable {
-        case kbs = "KBS"
-        case mbc = "MBC"
-        case sbs = "SBS"
-        case ebs = "EBS"
-        case cbs = "CBS"
-        case tbs = "TBS"
-        case other = "기타"
+        case focus = "집중/공부"
+        case relaxation = "휴식/수면"
+        case classical = "클래식"
+        case cafe = "카페/라운지"
 
         var icon: String {
             switch self {
-            case .kbs: return "k.circle.fill"
-            case .mbc: return "m.circle.fill"
-            case .sbs: return "s.circle.fill"
-            case .ebs: return "e.circle.fill"
-            case .cbs: return "c.circle.fill"
-            case .tbs: return "t.circle.fill"
-            case .other: return "radio.fill"
+            case .focus: return "brain"
+            case .relaxation: return "moon"
+            case .classical: return "music.note"
+            case .cafe: return "cup.and.saucer"
             }
         }
 
         var color: String {
             switch self {
-            case .kbs: return "blue"
-            case .mbc: return "purple"
-            case .sbs: return "orange"
-            case .ebs: return "green"
-            case .cbs: return "red"
-            case .tbs: return "teal"
-            case .other: return "gray"
+            case .focus: return "blue"
+            case .relaxation: return "purple"
+            case .classical: return "orange"
+            case .cafe: return "brown"
             }
         }
     }
@@ -43,32 +34,29 @@ struct RadioStation: Identifiable, Hashable {
 
 extension RadioStation {
     static let allStations: [RadioStation] = [
-        // KBS - radio.bsod.kr proxy (Cloudflare Workers)
-        RadioStation(name: "KBS 1Radio", streamURL: "https://radio.bsod.kr/stream/?stn=kbs&ch=1radio", category: .kbs),
-        RadioStation(name: "KBS HappyFM", streamURL: "https://radio.bsod.kr/stream/?stn=kbs&ch=2radio", category: .kbs),
-        RadioStation(name: "KBS ClassicFM", streamURL: "https://radio.bsod.kr/stream/?stn=kbs&ch=1fm", category: .kbs),
-        RadioStation(name: "KBS CoolFM", streamURL: "https://radio.bsod.kr/stream/?stn=kbs&ch=2fm", category: .kbs),
+        // Focus - 집중/공부
+        RadioStation(name: "RadioNOS Ambient", streamURL: "https://nos.radio.br:443/stream/14/", category: .focus),
+        RadioStation(name: "RadioNOS Electronica", streamURL: "https://nos.radio.br:443/stream/7/", category: .focus),
+        RadioStation(name: "RadioNOS Chiptune", streamURL: "https://nos.radio.br:443/stream/15/", category: .focus),
+        RadioStation(name: "FluxFM ChillHop", streamURL: "http://streams.fluxfm.de/Chillhop/mp3-320/streams.fluxfm.de/", category: .focus),
 
-        // MBC - radio.bsod.kr proxy (Cloudflare Workers)
-        RadioStation(name: "MBC 표준FM", streamURL: "https://radio.bsod.kr/stream/?stn=mbc&ch=sfm", category: .mbc),
-        RadioStation(name: "MBC FM4U", streamURL: "https://radio.bsod.kr/stream/?stn=mbc&ch=fm4u", category: .mbc),
+        // Relaxation - 휴식/수면
+        RadioStation(name: "RadioNOS Relaxing", streamURL: "https://nos.radio.br:443/stream/10/", category: .relaxation),
+        RadioStation(name: "RadioNOS New Age", streamURL: "https://nos.radio.br:443/stream/2/", category: .relaxation),
+        RadioStation(name: "Peaceful Piano", streamURL: "https://peacefulpiano.stream.publicradio.org/peacefulpiano.mp3", category: .relaxation),
+        RadioStation(name: "YourClassical Relax", streamURL: "https://relax.stream.publicradio.org/relax.mp3", category: .relaxation),
 
-        // SBS - radio.bsod.kr proxy (Cloudflare Workers)
-        RadioStation(name: "SBS 파워FM", streamURL: "https://radio.bsod.kr/stream/?stn=sbs&ch=powerfm", category: .sbs),
-        RadioStation(name: "SBS 러브FM", streamURL: "https://radio.bsod.kr/stream/?stn=sbs&ch=lovefm", category: .sbs),
-        RadioStation(name: "SBS 고릴라디오M", streamURL: "https://radio.bsod.kr/stream/?stn=sbs&ch=dmb", category: .sbs),
+        // Classical - 클래식
+        RadioStation(name: "Public Domain Classical", streamURL: "http://relay.publicdomainradio.org/classical.mp3", category: .classical),
+        RadioStation(name: "RadioNOS Modern Classical", streamURL: "https://nos.radio.br:443/stream/6/", category: .classical),
+        RadioStation(name: "YourClassical Essentials", streamURL: "https://favorites.stream.publicradio.org/favorites.mp3", category: .classical),
+        RadioStation(name: "Classic FM", streamURL: "https://playerservices.streamtheworld.com/api/livestream-redirect/CLASSICFM.mp3", category: .classical),
 
-        // EBS - radio.bsod.kr proxy (Cloudflare Workers)
-        RadioStation(name: "EBS FM", streamURL: "https://radio.bsod.kr/stream/?stn=ebs", category: .ebs),
-
-        // CBS - radio.bsod.kr proxy (Cloudflare Workers)
-        RadioStation(name: "CBS 표준FM", streamURL: "https://radio.bsod.kr/stream/?stn=cbs&ch=sfm", category: .cbs),
-        RadioStation(name: "CBS 음악FM", streamURL: "https://radio.bsod.kr/stream/?stn=cbs&ch=mfm", category: .cbs),
-        RadioStation(name: "CBS JOY4U", streamURL: "https://radio.bsod.kr/stream/?stn=cbs&ch=joy4u", category: .cbs),
-
-        // TBS - radio.bsod.kr proxy (Cloudflare Workers)
-        RadioStation(name: "TBS FM", streamURL: "https://radio.bsod.kr/stream/?stn=tbs&ch=fm", category: .tbs),
-        RadioStation(name: "TBS eFM", streamURL: "https://radio.bsod.kr/stream/?stn=tbs&ch=efm", category: .tbs),
+        // Cafe - 카페/라운지
+        RadioStation(name: "Public Domain Jazz", streamURL: "http://relay.publicdomainradio.org/jazz_swing.mp3", category: .cafe),
+        RadioStation(name: "RadioNOS Jazz", streamURL: "https://nos.radio.br:443/stream/3/", category: .cafe),
+        RadioStation(name: "RadioNOS Lounge", streamURL: "https://nos.radio.br:443/stream/13/", category: .cafe),
+        RadioStation(name: "Jazz Radio Lounge", streamURL: "http://jazzlounge.ice.infomaniak.ch/jazzlounge-high.mp3", category: .cafe),
     ]
 
     static func stations(for category: StationCategory) -> [RadioStation] {
