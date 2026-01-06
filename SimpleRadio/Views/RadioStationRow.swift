@@ -124,24 +124,3 @@ struct WaveformView: View {
     }
 }
 
-#Preview {
-    List {
-        RadioStationRow(
-            station: RadioStation.allStations[0],
-            isPlaying: true,
-            isCurrentStation: true
-        )
-        RadioStationRow(
-            station: RadioStation.allStations[1],
-            isPlaying: false,
-            isCurrentStation: false,
-            isLoading: true
-        )
-        RadioStationRow(
-            station: RadioStation.allStations[4],
-            isPlaying: false,
-            isCurrentStation: true,
-            hasError: true
-        )
-    }
-}

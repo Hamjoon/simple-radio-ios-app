@@ -88,7 +88,7 @@ final class RadioPlayer {
 
     private func updateNowPlayingInfo() {
         var info = [String: Any]()
-        info[MPMediaItemPropertyTitle] = currentStation?.name ?? "가리봉 라디오"
+        info[MPMediaItemPropertyTitle] = currentStation?.name ?? "라디오"
         info[MPMediaItemPropertyArtist] = currentStation?.category.rawValue ?? ""
         info[MPNowPlayingInfoPropertyIsLiveStream] = true
         MPNowPlayingInfoCenter.default().nowPlayingInfo = info
@@ -104,12 +104,22 @@ final class RadioPlayer {
         isLoading = true
         error = nil
 
-        let urlString = station.streamURL
+        // Record click to Radio Browser API
+        Task {
+            await RadioBrowserAPI.shared.recordClick(stationuuid: station.stationuuid)
+        }
 
-        // Handle PLS playlist files
-        if urlString.hasSuffix(".pls") {
+        let urlString = station.effectiveStreamURL
+
+        // Handle different playlist formats
+        let lowercaseURL = urlString.lowercased()
+        if lowercaseURL.hasSuffix(".pls") {
             Task {
                 await loadPLSAndPlay(urlString: urlString)
+            }
+        } else if lowercaseURL.hasSuffix(".m3u") || lowercaseURL.hasSuffix(".m3u8") {
+            Task {
+                await loadM3UAndPlay(urlString: urlString)
             }
         } else {
             playStream(urlString: urlString)
@@ -147,12 +157,59 @@ final class RadioPlayer {
         }
     }
 
+    private func loadM3UAndPlay(urlString: String) async {
+        guard let url = URL(string: urlString) else {
+            await MainActor.run {
+                isLoading = false
+                error = "잘못된 스트림 주소입니다"
+            }
+            return
+        }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            if let content = String(data: data, encoding: .utf8),
+               let streamURL = parseM3U(content: content) {
+                await MainActor.run {
+                    playStream(urlString: streamURL)
+                }
+            } else {
+                // If M3U parsing fails, try playing directly (might be HLS)
+                await MainActor.run {
+                    playStream(urlString: urlString)
+                }
+            }
+        } catch {
+            print("Failed to load M3U: \(error)")
+            await MainActor.run {
+                self.isLoading = false
+                self.error = "서버에 연결할 수 없습니다"
+            }
+        }
+    }
+
     private func parsePLS(content: String) -> String? {
         let lines = content.components(separatedBy: .newlines)
         for line in lines {
             let trimmed = line.trimmingCharacters(in: .whitespaces)
             if trimmed.lowercased().hasPrefix("file1=") {
                 return String(trimmed.dropFirst(6))
+            }
+        }
+        return nil
+    }
+
+    private func parseM3U(content: String) -> String? {
+        let lines = content.components(separatedBy: .newlines)
+        for line in lines {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            // Skip comments and empty lines
+            if trimmed.isEmpty || trimmed.hasPrefix("#") {
+                continue
+            }
+            // Return first valid URL
+            if trimmed.hasPrefix("http://") || trimmed.hasPrefix("https://") {
+                return trimmed
             }
         }
         return nil

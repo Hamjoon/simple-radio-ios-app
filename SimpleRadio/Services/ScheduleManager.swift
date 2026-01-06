@@ -95,7 +95,7 @@ final class ScheduleManager {
 
         let player = RadioPlayer.shared
         if let station = schedule.station(for: hour) {
-            if player.currentStation?.name != station.name || !player.isPlaying {
+            if player.currentStation?.id != station.id || !player.isPlaying {
                 player.play(station: station)
             }
         } else {

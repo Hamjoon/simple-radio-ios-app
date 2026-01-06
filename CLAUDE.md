@@ -17,7 +17,7 @@ A Korean radio streaming iOS app with two modes:
 
 ```bash
 # Build the project
-xcodebuild -scheme SimpleRadio -destination 'platform=iOS Simulator,name=iPhone 16' build
+xcodebuild -scheme SimpleRadio -destination 'platform=iOS Simulator,name=iPhone 17' build
 
 # Clean build
 xcodebuild -scheme SimpleRadio clean
@@ -27,19 +27,26 @@ xcodebuild -scheme SimpleRadio clean
 
 The project uses SwiftUI with the Observation framework (`@Observable`).
 
+### Data Source
+- **Radio Browser API** (radio-browser.info): Community-maintained public radio station database
+- Korean stations fetched via `countrycode=KR` filter
+- API servers: `de2.api.radio-browser.info`, `fi1.api.radio-browser.info`
+
 ### Models
-- `RadioStation.swift` - Station data (name, streamURL, category) with static station list; includes `icon` (SF Symbol) and `color` per category
-- `HourlySchedule.swift` - 24-hour schedule mapping hours to stations, persisted as JSON
+- `RadioStation.swift` - Station data from Radio Browser API (stationuuid, name, streamURL, urlResolved, codec, bitrate, tags, favicon); category inferred from name/tags
+- `HourlySchedule.swift` - 24-hour schedule mapping hours to station UUIDs, persisted as JSON (v2 format)
 
 ### Views
 - `ContentView.swift` - Custom tab-style mode picker with SF Symbols, animated toolbar icon
-- `RadioStationListView.swift` - Station list grouped by category with icons and channel counts
+- `RadioStationListView.swift` - Station list grouped by category with icons and channel counts; loading/error states
 - `RadioStationRow.swift` - Station row with category badge, waveform animation (`WaveformView`), loading/error states
 - `NowPlayingView.swift` - Floating card mini player with gradient progress line, stop/play buttons, error banner with retry
 - `ScheduleView.swift` - 24-hour grid with time-of-day icons, timeline dividers, station picker sheet, error state display
 
 ### Services
-- `RadioPlayer.swift` - Singleton AVPlayer wrapper with PLS parsing, background audio, Now Playing info, interruption handling, error state management
+- `RadioBrowserAPI.swift` - Actor-based API client for Radio Browser; fetches Korean stations, records clicks, station lookup by UUID
+- `StationRepository.swift` - Singleton station cache with 24-hour expiry; loads from API, falls back to cache; provides category filtering
+- `RadioPlayer.swift` - Singleton AVPlayer wrapper with PLS/M3U parsing, background audio, Now Playing info, interruption handling, error state management
 - `ScheduleManager.swift` - Clock-based auto-switching with minute-aligned timer, `activeHour` for real-time tracking
 
 ## Project Structure
@@ -58,52 +65,51 @@ SimpleRadio/
 │   ├── NowPlayingView.swift
 │   └── ScheduleView.swift
 ├── Services/
+│   ├── RadioBrowserAPI.swift
+│   ├── StationRepository.swift
 │   ├── RadioPlayer.swift
 │   └── ScheduleManager.swift
 └── Assets.xcassets/
 ```
 
-## Radio Stations
+## Radio Browser API
 
-Korean broadcasters: KBS, MBC, SBS, EBS, CBS, TBS. 
+**Base URL**: `https://{server}/json/stations/search`
 
-**Stream Source**: All stations use `radio.bsod.kr` proxy service (Cloudflare Workers) for reliable global access.
+**Endpoints Used**:
+- `GET /json/stations/search?countrycode=KR&limit=200&hidebroken=true` - Fetch Korean stations
+- `GET /json/url/{stationuuid}` - Record click and get resolved URL
+- `GET /json/stations/byuuid/{uuid}` - Get station by UUID
 
-URL format: `https://radio.bsod.kr/stream/?stn={station}&ch={channel}`
-
-| Station | stn | ch |
-|---------|-----|-----|
-| KBS 1Radio | kbs | 1radio |
-| KBS HappyFM | kbs | 2radio |
-| KBS ClassicFM | kbs | 1fm |
-| KBS CoolFM | kbs | 2fm |
-| MBC 표준FM | mbc | sfm |
-| MBC FM4U | mbc | fm4u |
-| SBS 파워FM | sbs | powerfm |
-| SBS 러브FM | sbs | lovefm |
-| SBS 고릴라디오M | sbs | dmb |
-| EBS FM | ebs | (none) |
-| CBS 표준FM | cbs | sfm |
-| CBS 음악FM | cbs | mfm |
-| CBS JOY4U | cbs | joy4u |
-| TBS FM | tbs | fm |
-| TBS eFM | tbs | efm |
+**Station Fields**:
+- `stationuuid`: Unique identifier (used for schedule persistence)
+- `name`: Display name
+- `url`: Original stream URL
+- `url_resolved`: Resolved/redirected stream URL (preferred)
+- `codec`: Audio codec (MP3, AAC, etc.)
+- `bitrate`: Stream bitrate
+- `favicon`: Station icon URL
+- `tags`: Comma-separated tags for categorization
 
 ### Category Icons & Colors
-| Category | Icon | Color |
-|----------|------|-------|
-| KBS | `k.circle.fill` | blue |
-| MBC | `m.circle.fill` | purple |
-| SBS | `s.circle.fill` | orange |
-| EBS | `e.circle.fill` | green |
-| CBS | `c.circle.fill` | red |
-| TBS | `t.circle.fill` | teal |
+| Category | Icon | Color | Detection |
+|----------|------|-------|-----------|
+| KBS | `k.circle.fill` | blue | Name starts with "KBS" |
+| MBC | `m.circle.fill` | purple | Name contains "MBC" |
+| SBS | `s.circle.fill` | orange | Name starts with "SBS" |
+| EBS | `e.circle.fill` | green | Name contains "EBS" |
+| CBS | `c.circle.fill` | red | Name contains "CBS" |
+| TBS | `t.circle.fill` | teal | Name contains "TBS" |
+| Other | `radio.fill` | gray | Default |
 
 ## Key Implementation Details
 
-- **Stream Proxy**: Uses `radio.bsod.kr` Cloudflare Workers proxy for reliable access from any location (including App Store reviewers in US)
+- **Radio Browser API**: Uses public API for station data; no copyright issues
+- **Station Caching**: `StationRepository` caches stations for 24 hours in `stations_cache.json`
 - **Error Handling**: RadioPlayer includes `error` state with AVPlayerItem status monitoring; UI displays error banner with retry button
-- **Schedule Persistence**: `HourlySchedule` saves to `Documents/hourly_schedule.json`
+- **Schedule Persistence**: `HourlySchedule` saves to `Documents/hourly_schedule_v2.json` using station UUIDs
+- **Stream Format Support**: Handles direct streams, PLS playlists, and M3U/M3U8 (HLS) playlists
+- **Click Recording**: Records station clicks to Radio Browser API for community statistics
 - **Empty Hour Behavior**: Radio stops when no station is scheduled for current hour
 - **Auto-Scroll**: ScheduleView auto-scrolls to current hour on appear and when hour changes
 - **Background Audio**: Enabled via `UIBackgroundModes` in Info.plist
@@ -111,8 +117,9 @@ URL format: `https://radio.bsod.kr/stream/?stn={station}&ch={channel}`
 - **UI State Sync**: Switching modes updates UI across both tabs; manual play disables schedule mode via `disableScheduleMode()`
 - **Real-time Hour Tracking**: `ScheduleManager.activeHour` triggers UI updates when hour changes during auto-play
 - **Timer Sync**: Schedule timer aligns to minute boundaries (fires at :00 seconds) for precise hour-change detection
-- **Loading States**: UI shows ProgressView during stream connection
+- **Loading States**: UI shows ProgressView during stream connection and station list loading
 - **Error States**: Red error banner, retry button, "연결 실패" status text
+- **Pull-to-Refresh**: Station list supports pull-to-refresh to reload from API
 
 ## SF Symbols Used
 
@@ -127,3 +134,4 @@ URL format: `https://radio.bsod.kr/stream/?stn={station}&ch={channel}`
 - `checkmark.circle.fill` - Selected item in picker
 - `exclamationmark.triangle.fill` - Error state indicator
 - `arrow.clockwise` - Retry button
+- `wifi.exclamationmark` - Network error state

@@ -8,6 +8,7 @@ struct SelectedHour: Identifiable {
 struct ScheduleView: View {
     @Bindable var scheduleManager = ScheduleManager.shared
     @Bindable var player = RadioPlayer.shared
+    @Bindable var repository = StationRepository.shared
     @State private var selectedHour: SelectedHour?
 
     var body: some View {
@@ -16,48 +17,52 @@ struct ScheduleView: View {
                 scheduleActiveHeader
             }
 
-            ScrollViewReader { proxy in
-                List {
-                    Section {
-                        ForEach(0..<24, id: \.self) { hour in
-                            ScheduleRowView(
-                                hour: hour,
-                                station: scheduleManager.schedule.station(for: hour),
-                                isCurrentHour: hour == scheduleManager.activeHour && scheduleManager.isScheduleMode,
-                                hasError: hour == scheduleManager.activeHour && scheduleManager.isScheduleMode && player.error != nil
-                            )
-                            .id(hour)
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                selectedHour = SelectedHour(id: hour)
+            if repository.isLoading && repository.stations.isEmpty {
+                loadingView
+            } else {
+                ScrollViewReader { proxy in
+                    List {
+                        Section {
+                            ForEach(0..<24, id: \.self) { hour in
+                                ScheduleRowView(
+                                    hour: hour,
+                                    station: scheduleManager.schedule.station(for: hour),
+                                    isCurrentHour: hour == scheduleManager.activeHour && scheduleManager.isScheduleMode,
+                                    hasError: hour == scheduleManager.activeHour && scheduleManager.isScheduleMode && player.error != nil
+                                )
+                                .id(hour)
+                                .contentShape(Rectangle())
+                                .onTapGesture {
+                                    selectedHour = SelectedHour(id: hour)
+                                }
                             }
-                        }
-                    } header: {
-                        HStack(spacing: 6) {
-                            Image(systemName: "calendar.badge.clock")
-                                .foregroundStyle(.blue)
-                            Text("24시간 스케줄")
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
+                        } header: {
+                            HStack(spacing: 6) {
+                                Image(systemName: "calendar.badge.clock")
+                                    .foregroundStyle(.blue)
+                                Text("24시간 스케줄")
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
 
-                            Spacer()
+                                Spacer()
 
-                            let scheduledCount = (0..<24).filter { scheduleManager.schedule.station(for: $0) != nil }.count
-                            Text("\(scheduledCount)/24 설정됨")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                                let scheduledCount = (0..<24).filter { scheduleManager.schedule.station(for: $0) != nil }.count
+                                Text("\(scheduledCount)/24 설정됨")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .textCase(nil)
                         }
-                        .textCase(nil)
                     }
-                }
-                .listStyle(.insetGrouped)
-                .onAppear {
-                    scrollToCurrentHour(proxy: proxy)
-                }
-                .onChange(of: scheduleManager.activeHour) { _, newHour in
-                    if scheduleManager.isScheduleMode && newHour >= 0 {
-                        withAnimation {
-                            proxy.scrollTo(newHour, anchor: .center)
+                    .listStyle(.insetGrouped)
+                    .onAppear {
+                        scrollToCurrentHour(proxy: proxy)
+                    }
+                    .onChange(of: scheduleManager.activeHour) { _, newHour in
+                        if scheduleManager.isScheduleMode && newHour >= 0 {
+                            withAnimation {
+                                proxy.scrollTo(newHour, anchor: .center)
+                            }
                         }
                     }
                 }
@@ -76,6 +81,20 @@ struct ScheduleView: View {
                 scheduleControlButton
             }
         }
+        .task {
+            await repository.loadStations()
+        }
+    }
+
+    private var loadingView: some View {
+        VStack(spacing: 16) {
+            ProgressView()
+                .scaleEffect(1.2)
+            Text("방송국 목록 불러오는 중...")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private func scrollToCurrentHour(proxy: ScrollViewProxy) {
@@ -435,6 +454,7 @@ struct StationPickerView: View {
     let onSelect: (RadioStation?) -> Void
 
     @Environment(\.dismiss) private var dismiss
+    @Bindable var repository = StationRepository.shared
 
     private func categoryColor(_ category: RadioStation.StationCategory) -> Color {
         switch category.color {
@@ -479,7 +499,7 @@ struct StationPickerView: View {
                 }
 
                 ForEach(RadioStation.StationCategory.allCases, id: \.self) { category in
-                    let stations = RadioStation.stations(for: category)
+                    let stations = repository.stations(for: category)
                     if !stations.isEmpty {
                         Section {
                             ForEach(stations) { station in
@@ -501,7 +521,7 @@ struct StationPickerView: View {
 
                                         Spacer()
 
-                                        if currentStation?.name == station.name {
+                                        if currentStation?.id == station.id {
                                             Image(systemName: "checkmark.circle.fill")
                                                 .foregroundStyle(.blue)
                                         }

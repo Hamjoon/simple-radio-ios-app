@@ -1,17 +1,17 @@
 import Foundation
 
 struct HourlySchedule: Codable {
-    var hourlyStations: [Int: String]  // Hour (0-23) -> Station name
+    var hourlyStations: [Int: String]  // Hour (0-23) -> Station UUID
 
     init() {
         hourlyStations = [:]
     }
 
     func station(for hour: Int) -> RadioStation? {
-        guard let stationName = hourlyStations[hour] else {
+        guard let stationUUID = hourlyStations[hour] else {
             return nil
         }
-        return RadioStation.allStations.first { $0.name == stationName }
+        return StationRepository.shared.station(byUUID: stationUUID)
     }
 
     func stationWithFallback(for hour: Int) -> RadioStation? {
@@ -33,7 +33,7 @@ struct HourlySchedule: Codable {
 
     mutating func setStation(_ station: RadioStation?, for hour: Int) {
         if let station = station {
-            hourlyStations[hour] = station.name
+            hourlyStations[hour] = station.stationuuid
         } else {
             hourlyStations.removeValue(forKey: hour)
         }
@@ -48,16 +48,31 @@ struct HourlySchedule: Codable {
 extension HourlySchedule {
     private static var fileURL: URL {
         let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        return documents.appendingPathComponent("hourly_schedule_v2.json")
+    }
+
+    private static var legacyFileURL: URL {
+        let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         return documents.appendingPathComponent("hourly_schedule.json")
     }
 
     static func load() -> HourlySchedule {
-        do {
-            let data = try Data(contentsOf: fileURL)
-            return try JSONDecoder().decode(HourlySchedule.self, from: data)
-        } catch {
-            return HourlySchedule()
+        // Try loading new format first
+        if FileManager.default.fileExists(atPath: fileURL.path) {
+            do {
+                let data = try Data(contentsOf: fileURL)
+                return try JSONDecoder().decode(HourlySchedule.self, from: data)
+            } catch {
+                print("Failed to load schedule: \(error)")
+            }
         }
+
+        // Clean up legacy file if exists (data is incompatible due to name -> UUID change)
+        if FileManager.default.fileExists(atPath: legacyFileURL.path) {
+            try? FileManager.default.removeItem(at: legacyFileURL)
+        }
+
+        return HourlySchedule()
     }
 
     func save() {

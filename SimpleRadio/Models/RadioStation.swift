@@ -1,12 +1,39 @@
 import Foundation
 
-struct RadioStation: Identifiable, Hashable {
-    let id = UUID()
+struct RadioStation: Identifiable, Hashable, Codable {
+    let stationuuid: String
     let name: String
     let streamURL: String
-    let category: StationCategory
+    let urlResolved: String
+    let codec: String?
+    let bitrate: Int?
+    let favicon: String?
+    let tags: String?
 
-    enum StationCategory: String, CaseIterable {
+    var id: String { stationuuid }
+
+    var category: StationCategory {
+        let upperName = name.uppercased()
+        let tagsUpper = (tags ?? "").uppercased()
+
+        if upperName.hasPrefix("KBS") || tagsUpper.contains("KBS") {
+            return .kbs
+        } else if upperName.hasPrefix("MBC") || upperName.contains("MBC") || tagsUpper.contains("MBC") {
+            return .mbc
+        } else if upperName.hasPrefix("SBS") || tagsUpper.contains("SBS") {
+            return .sbs
+        } else if upperName.hasPrefix("EBS") || upperName.contains("EBS") || tagsUpper.contains("EBS") {
+            return .ebs
+        } else if upperName.hasPrefix("CBS") || upperName.contains("CBS") || tagsUpper.contains("CBS") {
+            return .cbs
+        } else if upperName.hasPrefix("TBS") || upperName.contains("TBS") || tagsUpper.contains("TBS") {
+            return .tbs
+        } else {
+            return .other
+        }
+    }
+
+    enum StationCategory: String, CaseIterable, Codable {
         case kbs = "KBS"
         case mbc = "MBC"
         case sbs = "SBS"
@@ -39,39 +66,36 @@ struct RadioStation: Identifiable, Hashable {
             }
         }
     }
+
+    init(stationuuid: String, name: String, streamURL: String, urlResolved: String, codec: String?, bitrate: Int?, favicon: String?, tags: String?) {
+        self.stationuuid = stationuuid
+        self.name = name
+        self.streamURL = streamURL
+        self.urlResolved = urlResolved
+        self.codec = codec
+        self.bitrate = bitrate
+        self.favicon = favicon
+        self.tags = tags
+    }
+
+    init(from browserStation: RadioBrowserStation) {
+        self.stationuuid = browserStation.stationuuid
+        self.name = browserStation.name
+        self.streamURL = browserStation.url
+        self.urlResolved = browserStation.urlResolved
+        self.codec = browserStation.codec
+        self.bitrate = browserStation.bitrate
+        self.favicon = browserStation.favicon
+        self.tags = browserStation.tags
+    }
 }
 
 extension RadioStation {
-    static let allStations: [RadioStation] = [
-        // KBS - radio.bsod.kr proxy (Cloudflare Workers)
-        RadioStation(name: "KBS 1Radio", streamURL: "https://radio.bsod.kr/stream/?stn=kbs&ch=1radio", category: .kbs),
-        RadioStation(name: "KBS HappyFM", streamURL: "https://radio.bsod.kr/stream/?stn=kbs&ch=2radio", category: .kbs),
-        RadioStation(name: "KBS ClassicFM", streamURL: "https://radio.bsod.kr/stream/?stn=kbs&ch=1fm", category: .kbs),
-        RadioStation(name: "KBS CoolFM", streamURL: "https://radio.bsod.kr/stream/?stn=kbs&ch=2fm", category: .kbs),
-
-        // MBC - radio.bsod.kr proxy (Cloudflare Workers)
-        RadioStation(name: "MBC 표준FM", streamURL: "https://radio.bsod.kr/stream/?stn=mbc&ch=sfm", category: .mbc),
-        RadioStation(name: "MBC FM4U", streamURL: "https://radio.bsod.kr/stream/?stn=mbc&ch=fm4u", category: .mbc),
-
-        // SBS - radio.bsod.kr proxy (Cloudflare Workers)
-        RadioStation(name: "SBS 파워FM", streamURL: "https://radio.bsod.kr/stream/?stn=sbs&ch=powerfm", category: .sbs),
-        RadioStation(name: "SBS 러브FM", streamURL: "https://radio.bsod.kr/stream/?stn=sbs&ch=lovefm", category: .sbs),
-        RadioStation(name: "SBS 고릴라디오M", streamURL: "https://radio.bsod.kr/stream/?stn=sbs&ch=dmb", category: .sbs),
-
-        // EBS - radio.bsod.kr proxy (Cloudflare Workers)
-        RadioStation(name: "EBS FM", streamURL: "https://radio.bsod.kr/stream/?stn=ebs", category: .ebs),
-
-        // CBS - radio.bsod.kr proxy (Cloudflare Workers)
-        RadioStation(name: "CBS 표준FM", streamURL: "https://radio.bsod.kr/stream/?stn=cbs&ch=sfm", category: .cbs),
-        RadioStation(name: "CBS 음악FM", streamURL: "https://radio.bsod.kr/stream/?stn=cbs&ch=mfm", category: .cbs),
-        RadioStation(name: "CBS JOY4U", streamURL: "https://radio.bsod.kr/stream/?stn=cbs&ch=joy4u", category: .cbs),
-
-        // TBS - radio.bsod.kr proxy (Cloudflare Workers)
-        RadioStation(name: "TBS FM", streamURL: "https://radio.bsod.kr/stream/?stn=tbs&ch=fm", category: .tbs),
-        RadioStation(name: "TBS eFM", streamURL: "https://radio.bsod.kr/stream/?stn=tbs&ch=efm", category: .tbs),
-    ]
-
-    static func stations(for category: StationCategory) -> [RadioStation] {
-        allStations.filter { $0.category == category }
+    var effectiveStreamURL: String {
+        // Prefer resolved URL if available
+        if !urlResolved.isEmpty {
+            return urlResolved
+        }
+        return streamURL
     }
 }
