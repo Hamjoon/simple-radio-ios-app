@@ -34,12 +34,12 @@ The project uses SwiftUI with the Observation framework (`@Observable`).
 ### Views
 - `ContentView.swift` - Custom tab-style mode picker with SF Symbols, animated toolbar icon
 - `RadioStationListView.swift` - Station list grouped by category with icons and channel counts
-- `RadioStationRow.swift` - Station row with category badge, waveform animation (`WaveformView`)
-- `NowPlayingView.swift` - Floating card mini player with gradient progress line, stop/play buttons
-- `ScheduleView.swift` - 24-hour grid with time-of-day icons, timeline dividers, station picker sheet
+- `RadioStationRow.swift` - Station row with category badge, waveform animation (`WaveformView`), loading/error states
+- `NowPlayingView.swift` - Floating card mini player with gradient progress line, stop/play buttons, error banner with retry
+- `ScheduleView.swift` - 24-hour grid with time-of-day icons, timeline dividers, station picker sheet, error state display
 
 ### Services
-- `RadioPlayer.swift` - Singleton AVPlayer wrapper with PLS parsing, background audio, Now Playing info, interruption handling
+- `RadioPlayer.swift` - Singleton AVPlayer wrapper with PLS parsing, background audio, Now Playing info, interruption handling, error state management
 - `ScheduleManager.swift` - Clock-based auto-switching with minute-aligned timer, `activeHour` for real-time tracking
 
 ## Project Structure
@@ -65,10 +65,29 @@ SimpleRadio/
 
 ## Radio Stations
 
-Korean broadcasters: KBS, MBC, SBS, EBS, CBS, TBS. Stream sources:
-- Direct HLS (`.m3u8`): CBS, TBS, EBS
-- PLS playlists (`.pls`): KBS, MBC, SBS via `serpent0.duckdns.org`
-- Proxy streams: `radio.bsod.kr/stream/`
+Korean broadcasters: KBS, MBC, SBS, EBS, CBS, TBS. 
+
+**Stream Source**: All stations use `radio.bsod.kr` proxy service (Cloudflare Workers) for reliable global access.
+
+URL format: `https://radio.bsod.kr/stream/?stn={station}&ch={channel}`
+
+| Station | stn | ch |
+|---------|-----|-----|
+| KBS 1Radio | kbs | 1radio |
+| KBS HappyFM | kbs | 2radio |
+| KBS ClassicFM | kbs | 1fm |
+| KBS CoolFM | kbs | 2fm |
+| MBC 표준FM | mbc | sfm |
+| MBC FM4U | mbc | fm4u |
+| SBS 파워FM | sbs | powerfm |
+| SBS 러브FM | sbs | lovefm |
+| SBS 고릴라디오M | sbs | dmb |
+| EBS FM | ebs | (none) |
+| CBS 표준FM | cbs | sfm |
+| CBS 음악FM | cbs | mfm |
+| CBS JOY4U | cbs | joy4u |
+| TBS FM | tbs | fm |
+| TBS eFM | tbs | efm |
 
 ### Category Icons & Colors
 | Category | Icon | Color |
@@ -82,7 +101,8 @@ Korean broadcasters: KBS, MBC, SBS, EBS, CBS, TBS. Stream sources:
 
 ## Key Implementation Details
 
-- **PLS Parsing**: `RadioPlayer` fetches and parses `.pls` files to extract `File1=` stream URL
+- **Stream Proxy**: Uses `radio.bsod.kr` Cloudflare Workers proxy for reliable access from any location (including App Store reviewers in US)
+- **Error Handling**: RadioPlayer includes `error` state with AVPlayerItem status monitoring; UI displays error banner with retry button
 - **Schedule Persistence**: `HourlySchedule` saves to `Documents/hourly_schedule.json`
 - **Empty Hour Behavior**: Radio stops when no station is scheduled for current hour
 - **Auto-Scroll**: ScheduleView auto-scrolls to current hour on appear and when hour changes
@@ -91,6 +111,8 @@ Korean broadcasters: KBS, MBC, SBS, EBS, CBS, TBS. Stream sources:
 - **UI State Sync**: Switching modes updates UI across both tabs; manual play disables schedule mode via `disableScheduleMode()`
 - **Real-time Hour Tracking**: `ScheduleManager.activeHour` triggers UI updates when hour changes during auto-play
 - **Timer Sync**: Schedule timer aligns to minute boundaries (fires at :00 seconds) for precise hour-change detection
+- **Loading States**: UI shows ProgressView during stream connection
+- **Error States**: Red error banner, retry button, "연결 실패" status text
 
 ## SF Symbols Used
 
@@ -103,3 +125,5 @@ Korean broadcasters: KBS, MBC, SBS, EBS, CBS, TBS. Stream sources:
 - `xmark.circle.fill` - Close/stop buttons
 - `plus.circle.dashed` - Empty schedule slot
 - `checkmark.circle.fill` - Selected item in picker
+- `exclamationmark.triangle.fill` - Error state indicator
+- `arrow.clockwise` - Retry button
