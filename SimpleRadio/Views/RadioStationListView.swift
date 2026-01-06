@@ -23,10 +23,13 @@ struct RadioStationListView: View {
                 if !stations.isEmpty {
                     Section {
                         ForEach(stations) { station in
+                            let isCurrentStation = player.currentStation?.id == station.id && !scheduleManager.isScheduleMode
                             RadioStationRow(
                                 station: station,
                                 isPlaying: player.isPlaying && !scheduleManager.isScheduleMode,
-                                isCurrentStation: player.currentStation?.id == station.id && !scheduleManager.isScheduleMode
+                                isCurrentStation: isCurrentStation,
+                                isLoading: isCurrentStation && player.isLoading,
+                                hasError: isCurrentStation && player.error != nil
                             )
                             .contentShape(Rectangle())
                             .onTapGesture {

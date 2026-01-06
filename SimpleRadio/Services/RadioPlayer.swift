@@ -8,10 +8,12 @@ final class RadioPlayer {
 
     private var player: AVPlayer?
     private var playerItem: AVPlayerItem?
+    private var statusObserver: NSKeyValueObservation?
 
     private(set) var currentStation: RadioStation?
     private(set) var isPlaying = false
     private(set) var isLoading = false
+    private(set) var error: String?
 
     private var wasPlayingBeforeInterruption = false
 
@@ -28,6 +30,7 @@ final class RadioPlayer {
             try session.setActive(true)
         } catch {
             print("Failed to setup audio session: \(error)")
+            self.error = "오디오 세션 설정 실패"
         }
     }
 
@@ -99,6 +102,7 @@ final class RadioPlayer {
         stop()
         currentStation = station
         isLoading = true
+        error = nil
 
         let urlString = station.streamURL
 
@@ -116,6 +120,7 @@ final class RadioPlayer {
         guard let url = URL(string: urlString) else {
             await MainActor.run {
                 isLoading = false
+                error = "잘못된 스트림 주소입니다"
             }
             return
         }
@@ -130,12 +135,14 @@ final class RadioPlayer {
             } else {
                 await MainActor.run {
                     isLoading = false
+                    error = "스트림 정보를 찾을 수 없습니다"
                 }
             }
         } catch {
             print("Failed to load PLS: \(error)")
             await MainActor.run {
-                isLoading = false
+                self.isLoading = false
+                self.error = "서버에 연결할 수 없습니다"
             }
         }
     }
@@ -154,19 +161,44 @@ final class RadioPlayer {
     private func playStream(urlString: String) {
         guard let url = URL(string: urlString) else {
             isLoading = false
+            error = "잘못된 스트림 주소입니다"
             return
         }
+
+        // Clean up previous observer
+        statusObserver?.invalidate()
+        statusObserver = nil
 
         playerItem = AVPlayerItem(url: url)
         player = AVPlayer(playerItem: playerItem)
 
+        // Monitor AVPlayerItem status
+        statusObserver = playerItem?.observe(\.status, options: [.new]) { [weak self] item, _ in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                switch item.status {
+                case .readyToPlay:
+                    self.error = nil
+                    self.isLoading = false
+                case .failed:
+                    self.error = item.error?.localizedDescription ?? "재생에 실패했습니다"
+                    self.isLoading = false
+                    self.isPlaying = false
+                case .unknown:
+                    break
+                @unknown default:
+                    break
+                }
+            }
+        }
+
         player?.play()
         isPlaying = true
-        isLoading = false
         updateNowPlayingInfo()
     }
 
     func play() {
+        error = nil
         player?.play()
         isPlaying = true
         updateNowPlayingInfo()
@@ -178,12 +210,15 @@ final class RadioPlayer {
     }
 
     func stop() {
+        statusObserver?.invalidate()
+        statusObserver = nil
         player?.pause()
         player = nil
         playerItem = nil
         currentStation = nil
         isPlaying = false
         isLoading = false
+        error = nil
     }
 
     func togglePlayPause() {
@@ -192,5 +227,9 @@ final class RadioPlayer {
         } else {
             play()
         }
+    }
+
+    func clearError() {
+        error = nil
     }
 }
