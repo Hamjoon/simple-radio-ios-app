@@ -50,7 +50,7 @@ extension RadioStation {
         RadioStation(name: "Public Domain Classical", streamURL: "http://relay.publicdomainradio.org/classical.mp3", category: .classical),
         RadioStation(name: "RadioNOS Modern Classical", streamURL: "https://nos.radio.br:443/stream/6/", category: .classical),
         RadioStation(name: "YourClassical Essentials", streamURL: "https://favorites.stream.publicradio.org/favorites.mp3", category: .classical),
-        RadioStation(name: "Classic FM", streamURL: "https://playerservices.streamtheworld.com/api/livestream-redirect/CLASSICFM.mp3", category: .classical),
+        RadioStation(name: "WWFM Classical", streamURL: "https://wwfm.streamguys1.com/live-mp3", category: .classical),
 
         // Cafe - 카페/라운지
         RadioStation(name: "Public Domain Jazz", streamURL: "http://relay.publicdomainradio.org/jazz_swing.mp3", category: .cafe),

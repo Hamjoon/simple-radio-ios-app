@@ -73,7 +73,7 @@ International radio stations organized by mood/purpose. Sources: RadioNOS (Brazi
 |----------|----------|
 | 집중/공부 (Focus) | RadioNOS Ambient, RadioNOS Electronica, RadioNOS Chiptune, FluxFM ChillHop |
 | 휴식/수면 (Relaxation) | RadioNOS Relaxing, RadioNOS New Age, Peaceful Piano, YourClassical Relax |
-| 클래식 (Classical) | Public Domain Classical, RadioNOS Modern Classical, YourClassical Essentials, Classic FM |
+| 클래식 (Classical) | Public Domain Classical, RadioNOS Modern Classical, YourClassical Essentials, WWFM Classical |
 | 카페/라운지 (Cafe) | Public Domain Jazz, RadioNOS Jazz, RadioNOS Lounge, Jazz Radio Lounge |
 
 ### Category Icons & Colors
