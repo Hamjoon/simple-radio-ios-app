@@ -7,6 +7,7 @@ struct SelectedHour: Identifiable {
 
 struct ScheduleView: View {
     @Bindable var scheduleManager = ScheduleManager.shared
+    @Bindable var player = RadioPlayer.shared
     @State private var selectedHour: SelectedHour?
 
     var body: some View {
@@ -22,7 +23,8 @@ struct ScheduleView: View {
                             ScheduleRowView(
                                 hour: hour,
                                 station: scheduleManager.schedule.station(for: hour),
-                                isCurrentHour: hour == scheduleManager.activeHour && scheduleManager.isScheduleMode
+                                isCurrentHour: hour == scheduleManager.activeHour && scheduleManager.isScheduleMode,
+                                hasError: hour == scheduleManager.activeHour && scheduleManager.isScheduleMode && player.error != nil
                             )
                             .id(hour)
                             .contentShape(Rectangle())
@@ -102,73 +104,143 @@ struct ScheduleView: View {
     }
 
     private var scheduleActiveHeader: some View {
-        HStack(spacing: 14) {
-            // Icon
-            ZStack {
-                Circle()
-                    .fill((currentStation != nil ? categoryColor : Color.orange).opacity(0.15))
-                    .frame(width: 50, height: 50)
-
-                if let station = currentStation {
-                    Image(systemName: station.category.icon)
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(categoryColor)
-                } else {
-                    Image(systemName: "speaker.slash.fill")
-                        .font(.title2)
-                        .foregroundStyle(.orange)
+        VStack(spacing: 0) {
+            // Error banner
+            if let error = player.error, currentStation != nil {
+                HStack(spacing: 8) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.white)
+                    Text(error)
+                        .font(.caption)
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                    Spacer()
+                    Button {
+                        // Retry current station
+                        if let station = currentStation {
+                            player.play(station: station)
+                        }
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "arrow.clockwise")
+                            Text("재시도")
+                        }
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
+                        .background(Color.white.opacity(0.2))
+                        .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
                 }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(Color.red)
             }
 
-            VStack(alignment: .leading, spacing: 3) {
-                if let station = currentStation {
-                    HStack(spacing: 4) {
-                        Image(systemName: "clock.badge.checkmark.fill")
-                            .font(.caption)
-                        Text("자동 재생 중")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                    }
-                    .foregroundStyle(.green)
+            HStack(spacing: 14) {
+                // Icon
+                ZStack {
+                    Circle()
+                        .fill(player.error != nil ? Color.red.opacity(0.15) : (currentStation != nil ? categoryColor : Color.orange).opacity(0.15))
+                        .frame(width: 50, height: 50)
 
-                    Text(station.name)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                } else {
-                    HStack(spacing: 4) {
+                    if player.isLoading {
+                        ProgressView()
+                            .scaleEffect(0.8)
+                    } else if player.error != nil {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .font(.caption)
-                        Text("채널 없음")
-                            .font(.subheadline)
+                            .font(.title2)
+                            .foregroundStyle(.red)
+                    } else if let station = currentStation {
+                        Image(systemName: station.category.icon)
+                            .font(.title2)
                             .fontWeight(.semibold)
+                            .foregroundStyle(categoryColor)
+                    } else {
+                        Image(systemName: "speaker.slash.fill")
+                            .font(.title2)
+                            .foregroundStyle(.orange)
                     }
-                    .foregroundStyle(.orange)
-
-                    Text("\(String(format: "%02d", scheduleManager.activeHour)):00 시간대 설정 필요")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
                 }
-            }
 
-            Spacer()
+                VStack(alignment: .leading, spacing: 3) {
+                    if player.error != nil && currentStation != nil {
+                        HStack(spacing: 4) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .font(.caption)
+                            Text("연결 실패")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                        }
+                        .foregroundStyle(.red)
 
-            // Current time badge
-            VStack(spacing: 2) {
-                Text(String(format: "%02d", scheduleManager.activeHour))
-                    .font(.system(.title2, design: .rounded))
-                    .fontWeight(.bold)
-                Text("시")
-                    .font(.caption2)
+                        Text(currentStation?.name ?? "")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    } else if player.isLoading {
+                        HStack(spacing: 4) {
+                            Image(systemName: "antenna.radiowaves.left.and.right")
+                                .font(.caption)
+                            Text("연결 중...")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                        }
+                        .foregroundStyle(.blue)
+
+                        Text(currentStation?.name ?? "")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    } else if let station = currentStation {
+                        HStack(spacing: 4) {
+                            Image(systemName: "clock.badge.checkmark.fill")
+                                .font(.caption)
+                            Text("자동 재생 중")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                        }
+                        .foregroundStyle(.green)
+
+                        Text(station.name)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        HStack(spacing: 4) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .font(.caption)
+                            Text("채널 없음")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                        }
+                        .foregroundStyle(.orange)
+
+                        Text("\(String(format: "%02d", scheduleManager.activeHour)):00 시간대 설정 필요")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                Spacer()
+
+                // Current time badge
+                VStack(spacing: 2) {
+                    Text(String(format: "%02d", scheduleManager.activeHour))
+                        .font(.system(.title2, design: .rounded))
+                        .fontWeight(.bold)
+                    Text("시")
+                        .font(.caption2)
+                }
+                .foregroundStyle(player.error != nil ? .red : (currentStation != nil ? categoryColor : .orange))
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background((player.error != nil ? Color.red : (currentStation != nil ? categoryColor : Color.orange)).opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
             }
-            .foregroundStyle(currentStation != nil ? categoryColor : .orange)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background((currentStation != nil ? categoryColor : Color.orange).opacity(0.1))
-            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .padding()
+            .background(Color(.secondarySystemGroupedBackground))
         }
-        .padding()
-        .background(Color(.secondarySystemGroupedBackground))
     }
 
     private var scheduleControlButton: some View {
@@ -219,6 +291,7 @@ struct ScheduleRowView: View {
     let hour: Int
     let station: RadioStation?
     let isCurrentHour: Bool
+    var hasError: Bool = false
 
     private var categoryColor: Color {
         guard let category = station?.category else { return .gray }
@@ -265,31 +338,44 @@ struct ScheduleRowView: View {
                     .font(.caption2)
             }
             .frame(width: 44)
-            .foregroundStyle(isCurrentHour ? (station != nil ? categoryColor : .orange) : .primary)
+            .foregroundStyle(isCurrentHour ? (hasError ? .red : (station != nil ? categoryColor : .orange)) : .primary)
 
             // Divider
             Rectangle()
-                .fill(isCurrentHour ? (station != nil ? categoryColor : Color.orange) : Color.secondary.opacity(0.3))
+                .fill(isCurrentHour ? (hasError ? Color.red : (station != nil ? categoryColor : Color.orange)) : Color.secondary.opacity(0.3))
                 .frame(width: 2, height: 36)
                 .clipShape(Capsule())
 
             // Station info
             if let station = station {
                 HStack(spacing: 10) {
-                    Image(systemName: station.category.icon)
-                        .font(.subheadline)
-                        .foregroundStyle(categoryColor)
-                        .frame(width: 24)
+                    if isCurrentHour && hasError {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.subheadline)
+                            .foregroundStyle(.red)
+                            .frame(width: 24)
+                    } else {
+                        Image(systemName: station.category.icon)
+                            .font(.subheadline)
+                            .foregroundStyle(categoryColor)
+                            .frame(width: 24)
+                    }
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text(station.name)
                             .font(.subheadline)
                             .fontWeight(isCurrentHour ? .semibold : .regular)
-                            .foregroundStyle(isCurrentHour ? categoryColor : .primary)
+                            .foregroundStyle(hasError ? .red : (isCurrentHour ? categoryColor : .primary))
 
-                        Text(station.category.rawValue)
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
+                        if isCurrentHour && hasError {
+                            Text("연결 실패")
+                                .font(.caption2)
+                                .foregroundStyle(.red)
+                        } else {
+                            Text(station.category.rawValue)
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 }
             } else {
@@ -308,7 +394,10 @@ struct ScheduleRowView: View {
 
             // Status indicator
             if isCurrentHour {
-                if station != nil {
+                if hasError {
+                    Image(systemName: "exclamationmark.circle.fill")
+                        .foregroundStyle(.red)
+                } else if station != nil {
                     HStack(spacing: 4) {
                         Image(systemName: "waveform")
                             .symbolEffect(.variableColor.iterative, options: .repeating, isActive: true)
@@ -333,7 +422,7 @@ struct ScheduleRowView: View {
         .background(
             isCurrentHour ?
                 RoundedRectangle(cornerRadius: 8)
-                    .fill((station != nil ? categoryColor : Color.orange).opacity(0.08))
+                    .fill((hasError ? Color.red : (station != nil ? categoryColor : Color.orange)).opacity(0.08))
                     .padding(.horizontal, -12)
                 : nil
         )

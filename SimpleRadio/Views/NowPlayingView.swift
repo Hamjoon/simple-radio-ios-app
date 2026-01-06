@@ -24,8 +24,31 @@ struct NowPlayingView: View {
     var body: some View {
         if let station = player.currentStation, !scheduleManager.isScheduleMode {
             VStack(spacing: 0) {
+                // Error banner
+                if let error = player.error {
+                    HStack(spacing: 8) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.white)
+                        Text(error)
+                            .font(.caption)
+                            .foregroundStyle(.white)
+                            .lineLimit(1)
+                        Spacer()
+                        Button {
+                            player.clearError()
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(.white.opacity(0.8))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(Color.red)
+                }
+
                 // Progress indicator line
-                if isManuallyPlaying {
+                if isManuallyPlaying && player.error == nil {
                     Rectangle()
                         .fill(
                             LinearGradient(
@@ -41,15 +64,24 @@ struct NowPlayingView: View {
                     // Station icon
                     ZStack {
                         Circle()
-                            .fill(categoryColor.opacity(0.15))
+                            .fill(player.error != nil ? Color.red.opacity(0.15) : categoryColor.opacity(0.15))
                             .frame(width: 50, height: 50)
 
-                        Image(systemName: station.category.icon)
-                            .font(.title2)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(categoryColor)
+                        if player.isLoading {
+                            ProgressView()
+                                .scaleEffect(0.8)
+                        } else if player.error != nil {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .font(.title2)
+                                .foregroundStyle(.red)
+                        } else {
+                            Image(systemName: station.category.icon)
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                                .foregroundStyle(categoryColor)
+                        }
 
-                        if isManuallyPlaying {
+                        if isManuallyPlaying && player.error == nil {
                             Circle()
                                 .strokeBorder(categoryColor.opacity(0.5), lineWidth: 2)
                                 .frame(width: 50, height: 50)
@@ -65,16 +97,26 @@ struct NowPlayingView: View {
                             .lineLimit(1)
 
                         HStack(spacing: 4) {
-                            if isManuallyPlaying {
+                            if player.isLoading {
+                                Text("연결 중...")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            } else if player.error != nil {
+                                Text("연결 실패")
+                                    .font(.caption)
+                                    .foregroundStyle(.red)
+                            } else if isManuallyPlaying {
                                 Image(systemName: "waveform")
                                     .symbolEffect(.variableColor.iterative, options: .repeating, isActive: true)
+                                Text("재생 중")
+                                    .font(.caption)
                             } else {
                                 Image(systemName: "pause.fill")
+                                Text("일시정지")
+                                    .font(.caption)
                             }
-                            Text(isManuallyPlaying ? "재생 중" : "일시정지")
-                                .font(.caption)
                         }
-                        .foregroundStyle(isManuallyPlaying ? categoryColor : .secondary)
+                        .foregroundStyle(player.error != nil ? .red : (isManuallyPlaying ? categoryColor : .secondary))
                     }
 
                     Spacer()
@@ -89,22 +131,38 @@ struct NowPlayingView: View {
                     }
                     .buttonStyle(.plain)
 
-                    // Play/Pause button
+                    // Play/Pause/Retry button
                     Button {
-                        player.togglePlayPause()
+                        if player.error != nil {
+                            // Retry on error
+                            player.play(station: station)
+                        } else {
+                            player.togglePlayPause()
+                        }
                     } label: {
                         ZStack {
                             Circle()
-                                .fill(categoryColor)
+                                .fill(player.error != nil ? Color.red : categoryColor)
                                 .frame(width: 50, height: 50)
 
-                            Image(systemName: isManuallyPlaying ? "pause.fill" : "play.fill")
-                                .font(.title3)
-                                .foregroundStyle(.white)
-                                .offset(x: isManuallyPlaying ? 0 : 2)
+                            if player.isLoading {
+                                ProgressView()
+                                    .tint(.white)
+                            } else if player.error != nil {
+                                Image(systemName: "arrow.clockwise")
+                                    .font(.title3)
+                                    .fontWeight(.semibold)
+                                    .foregroundStyle(.white)
+                            } else {
+                                Image(systemName: isManuallyPlaying ? "pause.fill" : "play.fill")
+                                    .font(.title3)
+                                    .foregroundStyle(.white)
+                                    .offset(x: isManuallyPlaying ? 0 : 2)
+                            }
                         }
                     }
                     .buttonStyle(.plain)
+                    .disabled(player.isLoading)
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)

@@ -4,6 +4,8 @@ struct RadioStationRow: View {
     let station: RadioStation
     let isPlaying: Bool
     let isCurrentStation: Bool
+    var isLoading: Bool = false
+    var hasError: Bool = false
 
     private var categoryColor: Color {
         switch station.category.color {
@@ -22,13 +24,22 @@ struct RadioStationRow: View {
             // Category icon
             ZStack {
                 Circle()
-                    .fill(categoryColor.opacity(0.15))
+                    .fill(hasError ? Color.red.opacity(0.15) : categoryColor.opacity(0.15))
                     .frame(width: 44, height: 44)
 
-                Image(systemName: station.category.icon)
-                    .font(.title3)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(categoryColor)
+                if isLoading && isCurrentStation {
+                    ProgressView()
+                        .scaleEffect(0.7)
+                } else if hasError && isCurrentStation {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .font(.title3)
+                        .foregroundStyle(.red)
+                } else {
+                    Image(systemName: station.category.icon)
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(categoryColor)
+                }
             }
 
             // Station info
@@ -36,15 +47,25 @@ struct RadioStationRow: View {
                 Text(station.name)
                     .font(.body)
                     .fontWeight(isCurrentStation ? .semibold : .regular)
-                    .foregroundStyle(isCurrentStation ? categoryColor : .primary)
+                    .foregroundStyle(hasError ? .red : (isCurrentStation ? categoryColor : .primary))
 
                 HStack(spacing: 4) {
-                    Image(systemName: "dot.radiowaves.left.and.right")
-                        .font(.caption2)
-                    Text("실시간 스트리밍")
-                        .font(.caption)
+                    if isLoading && isCurrentStation {
+                        Text("연결 중...")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    } else if hasError && isCurrentStation {
+                        Text("연결 실패 - 탭하여 재시도")
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                    } else {
+                        Image(systemName: "dot.radiowaves.left.and.right")
+                            .font(.caption2)
+                        Text("실시간 스트리밍")
+                            .font(.caption)
+                    }
                 }
-                .foregroundStyle(.secondary)
+                .foregroundStyle(hasError ? .red : .secondary)
             }
 
             Spacer()
@@ -52,7 +73,14 @@ struct RadioStationRow: View {
             // Playing indicator
             if isCurrentStation {
                 HStack(spacing: 4) {
-                    if isPlaying {
+                    if isLoading {
+                        ProgressView()
+                            .scaleEffect(0.6)
+                    } else if hasError {
+                        Image(systemName: "arrow.clockwise")
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                    } else if isPlaying {
                         WaveformView()
                             .frame(width: 20, height: 16)
                     } else {
@@ -63,7 +91,7 @@ struct RadioStationRow: View {
                 }
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
-                .background(categoryColor.opacity(0.15))
+                .background(hasError ? Color.red.opacity(0.15) : categoryColor.opacity(0.15))
                 .clipShape(Capsule())
             }
         }
@@ -106,12 +134,14 @@ struct WaveformView: View {
         RadioStationRow(
             station: RadioStation.allStations[1],
             isPlaying: false,
-            isCurrentStation: false
+            isCurrentStation: false,
+            isLoading: true
         )
         RadioStationRow(
             station: RadioStation.allStations[4],
             isPlaying: false,
-            isCurrentStation: true
+            isCurrentStation: true,
+            hasError: true
         )
     }
 }
