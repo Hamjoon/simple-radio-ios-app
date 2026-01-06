@@ -8,6 +8,11 @@ A Korean radio streaming iOS app with two modes:
 - **채널 선택 모드**: Manual station selection
 - **자동 재생 모드**: Clock-based 24-hour scheduled playback
 
+## Required Items when implementing code
+- Create a work branch from the develop branch.
+- Use the work branch to implement the code.
+- Before creating this PR with the completed code implementation, verify with the user.
+
 ## Build Commands
 
 ```bash
