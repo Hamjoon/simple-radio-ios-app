@@ -65,16 +65,16 @@ SimpleRadio/
 
 ## Radio Stations
 
-International radio stations organized by mood/purpose. Sources: RadioNOS (Brazil), YourClassical (USA), Public Domain Radio (Switzerland), and others.
+International radio stations organized by mood/purpose. Sources: RadioNOS (Brazil) and Public Domain Radio (Switzerland).
 
 ### Categories & Stations
 
 | Category | Stations |
 |----------|----------|
-| 집중/공부 (Focus) | RadioNOS Ambient, RadioNOS Electronica, RadioNOS Chiptune, FluxFM ChillHop |
-| 휴식/수면 (Relaxation) | RadioNOS Relaxing, RadioNOS New Age, Peaceful Piano, YourClassical Relax |
-| 클래식 (Classical) | Public Domain Classical, RadioNOS Modern Classical, YourClassical Essentials, WWFM Classical |
-| 카페/라운지 (Cafe) | Public Domain Jazz, RadioNOS Jazz, RadioNOS Lounge, Jazz Radio Lounge |
+| 집중/공부 (Focus) | RadioNOS Ambient, RadioNOS Electronica, RadioNOS Chiptune |
+| 휴식/수면 (Relaxation) | RadioNOS Relaxing, RadioNOS New Age |
+| 클래식 (Classical) | Public Domain Classical, RadioNOS Modern Classical |
+| 카페/라운지 (Cafe) | Public Domain Jazz, RadioNOS Jazz, RadioNOS Lounge |
 
 ### Category Icons & Colors
 | Category | Icon | Color |
