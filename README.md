@@ -1,6 +1,6 @@
 # Simple Radio iOS App
 
-A Korean radio streaming iOS app built with SwiftUI.
+An internet radio streaming iOS app built with SwiftUI.
 
 ## Features
 
@@ -22,16 +22,14 @@ A Korean radio streaming iOS app built with SwiftUI.
 
 ## Supported Stations
 
-Korean broadcasters organized by category:
+International radio stations organized by mood/purpose. Sources: RadioNOS (Brazil) and Public Domain Radio (Switzerland).
 
 | Category | Stations |
 |----------|----------|
-| KBS | KBS 1Radio, KBS 2Radio, KBS 3Radio, KBS Classic FM, KBS Cool FM, KBS World Radio |
-| MBC | MBC 표준FM, MBC FM4U |
-| SBS | SBS 러브FM, SBS 파워FM |
-| EBS | EBS FM |
-| CBS | CBS 표준FM, CBS 음악FM |
-| TBS | TBS FM, TBS eFM |
+| 집중/공부 (Focus) | RadioNOS Ambient, RadioNOS Electronica, RadioNOS Chiptune |
+| 휴식/수면 (Relaxation) | RadioNOS Relaxing, RadioNOS New Age |
+| 클래식 (Classical) | Public Domain Classical, RadioNOS Modern Classical |
+| 카페/라운지 (Cafe) | Public Domain Jazz, RadioNOS Jazz, RadioNOS Lounge |
 
 ## Requirements
 
